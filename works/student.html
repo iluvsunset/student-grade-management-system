@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Khám Phá Nghề Nghiệp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --secondary: #10B981;
+            --secondary-hover: #059669;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: #f5f7fa;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-main);
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 16px 20px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .header h1 i { color: var(--primary); -webkit-text-fill-color: initial; }
+
+        .container {
+            flex: 1;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            animation: cardEntrance 0.5s ease;
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #FAFAFA;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        textarea { min-height: 100px; resize: vertical; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled { background: #9CA3AF; box-shadow: none; cursor: not-allowed; }
+
+        /* App Modes */
+        .app-mode { display: none; }
+        .app-mode.active { display: block; }
+        
+        /* Views within modes */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        .career-title {
+            color: var(--primary);
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 12px;
+            border-bottom: 2px dashed var(--border);
+        }
+
+        .waiting-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .waiting-msg i { font-size: 4rem; color: var(--border); margin-bottom: 16px; }
+
+        .dynamic-block { margin-bottom: 40px; padding-bottom: 20px; }
+        .dynamic-block:last-child { border-bottom: none; margin-bottom: 0; }
+        
+        .label-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+        .label-with-icon i { color: var(--secondary); font-size: 1.25rem; }
+
+        /* Game specific */
+        .game-status {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .game-clue-box {
+            background: #EEF2FF;
+            border: 1px solid #C7D2FE;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            color: var(--primary-hover);
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="ph-fill ph-rocket-launch"></i> Khám Phá Nghề Nghiệp</h1>
+    </div>
+
+    <div class="container">
+
+        <!-- GLOBAL NAME ENTRY -->
+        <div id="nameEntryMode" class="app-mode active">
+            <div class="card">
+                <div class="question-text"><i class="ph-bold ph-user"></i> Nhập tên của bạn để bắt đầu:</div>
+                <input type="text" id="globalName" placeholder="Tên của bạn..." />
+                <button class="btn-submit" onclick="saveName()">Bắt đầu <i class="ph-bold ph-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <!-- GAME MODE (WORD SEARCH) -->
+        <div id="gameMode" class="app-mode">
+            <div id="gameWaitingView" class="view-section active">
+                <div class="card waiting-msg">
+                    <i class="ph-light ph-game-controller"></i>
+                    <h2>Sẵn sàng!</h2>
+                    <p style="margin-top:12px;">Hãy nhìn lên màn hình chính. Khi trò chơi bắt đầu, hãy nhanh mắt tìm từ khóa ẩn trong bảng và gõ vào đây!</p>
+                </div>
+            </div>
+
+            <div id="gameActiveView" class="view-section">
+                <div class="card">
+                    <div class="game-status"><i class="ph-bold ph-lightning"></i> TỪ KHÓA SỐ <span id="wordNumDisplay"></span> ĐANG MỞ!</div>
+                    <div class="question-text">Nhập từ khóa bạn tìm thấy trên bảng:</div>
+                    <input type="text" id="gameGuessInput" placeholder="Ví dụ: YTE..." />
+                    <button class="btn-submit" id="gameSubmitBtn" onclick="submitGuess()">Gửi đáp án <i class="ph-bold ph-paper-plane-right"></i></button>
+                    <p id="gameFeedback" style="text-align:center; margin-top:16px; font-weight:600;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRANSITION MODE -->
+        <div id="transitionMode" class="app-mode">
+            <div class="card waiting-msg">
+                <i class="ph-fill ph-stars" style="color: #F59E0B"></i>
+                <h2 style="color: #F59E0B">Tuyệt vời!</h2>
+                <p style="margin-top:12px;">Các từ khóa bạn vừa tìm được là gì? Hãy chú ý lên màn hình chính nhé!</p>
+            </div>
+        </div>
+
+        <!-- SURVEY MODE (Existing Logic) -->
+        <div id="surveyMode" class="app-mode">
+            <!-- STAGE 1 VIEW -->
+            <div id="stage1View" class="view-section active">
+                <div class="card">
+                    <div class="question-text"><i class="ph-bold ph-briefcase"></i> 1. Nhập một nhóm nghề bạn biết:</div>
+                    <input type="text" id="s1_career" placeholder="VD: Công nghệ thông tin..." />
+                    
+                    <div class="question-text"><i class="ph-bold ph-text-align-left"></i> 2. Đặc điểm của nhóm nghề này:</div>
+                    <textarea id="s1_desc" placeholder="Mô tả ngắn gọn..."></textarea>
+                    
+                    <button class="btn-submit" onclick="submitStage1()">Gửi <i class="ph-bold ph-paper-plane-right"></i></button>
+                </div>
+            </div>
+
+            <!-- WAITING VIEW -->
+            <div id="waitingView" class="view-section">
+                <div class="card waiting-msg">
+                    <i class="ph-light ph-hourglass-high"></i>
+                    <h2>Đã gửi thành công!</h2>
+                    <p style="margin-top:12px;">Vui lòng nhìn lên bảng và đợi người thuyết trình mở phần tiếp theo.</p>
+                </div>
+            </div>
+
+            <!-- STAGE 2 VIEW -->
+            <div id="stage2View" class="view-section">
+                <div class="card">
+                    <p style="color:var(--text-muted); margin-bottom: 24px; text-align:center;">Hãy điền thông tin chi tiết cho nhóm nghề bạn đã chọn ở giai đoạn 1.</p>
+                    <div id="stage2FormContainer">
+                        <!-- Form injected here via JS -->
+                    </div>
+                    <button class="btn-submit" onclick="submitStage2()" style="background: var(--secondary); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        Gửi câu trả lời <i class="ph-bold ph-check-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        import { getDatabase, ref, push, update, onValue, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBOZKWfYWsUqk7hnTqLrpthK6oS_cvAMgQ",
+            authDomain: "hdtnhn-d34d4.firebaseapp.com",
+            databaseURL: "https://hdtnhn-d34d4-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "hdtnhn-d34d4",
+            storageBucket: "hdtnhn-d34d4.firebasestorage.app",
+            messagingSenderId: "972353809708",
+            appId: "1:972353809708:web:68d6fba713321ef19c5089",
+            measurementId: "G-QGDNF7GFPL"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let studentName = localStorage.getItem('studentName');
+        let mySubmissionId = localStorage.getItem('mySubmissionId');
+        
+        let globalMode = 'survey'; // default fallback
+        let globalStage = 1;
+        let gameActiveWord = -1;
+        let myData = null;
+
+        function setAppMode(modeId) {
+            document.querySelectorAll('.app-mode').forEach(m => m.classList.remove('active'));
+            document.getElementById(modeId).classList.add('active');
+        }
+
+        function setView(modeContainerId, viewId) {
+            const container = document.getElementById(modeContainerId);
+            container.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            if(viewId) document.getElementById(viewId).classList.add('active');
+        }
+
+        // --- NAME LOGIC ---
+        window.saveName = function() {
+            const val = document.getElementById('globalName').value.trim();
+            if(!val) { alert('Vui lòng nhập tên!'); return; }
+            studentName = val;
+            localStorage.setItem('studentName', studentName);
+            evaluateRouting();
+        }
+
+        // --- FIREBASE LISTENERS ---
+        let guessedWords = {};
+        
+        onValue(ref(db, 'app_control'), (snapshot) => {
+            const data = snapshot.val() || {};
+            globalMode = data.mode || 'survey';
+            globalStage = data.stage || 1;
+            
+            if(data.game) {
+                gameActiveWord = data.game.activeWordIndex !== undefined ? data.game.activeWordIndex : -1;
+                if (data.game.revealed && data.game.revealed[gameActiveWord]) {
+                    gameActiveWord = -1;
+                }
+            } else {
+                gameActiveWord = -1;
+                guessedWords = {}; // reset on new game
+            }
+            
+            evaluateRouting();
+        });
+
+        // --- ROUTING LOGIC ---
+        function evaluateRouting() {
+            if(!studentName) {
+                setAppMode('nameEntryMode');
+                return;
+            }
+
+            if (globalMode === 'game') {
+                setAppMode('gameMode');
+                if (gameActiveWord >= 0) {
+                    setView('gameMode', 'gameActiveView');
+                    document.getElementById('wordNumDisplay').textContent = (gameActiveWord + 1);
+                    
+                    const inputEl = document.getElementById('gameGuessInput');
+                    const btnEl = document.getElementById('gameSubmitBtn');
+                    const feedbackEl = document.getElementById('gameFeedback');
+                    
+                    if (guessedWords[gameActiveWord]) {
+                        inputEl.disabled = true;
+                        btnEl.disabled = true;
+                        feedbackEl.textContent = 'Đã gửi! Chờ kết quả trên bảng...';
+                        feedbackEl.style.color = 'var(--secondary)';
+                    } else {
+                        inputEl.value = '';
+                        inputEl.disabled = false;
+                        btnEl.disabled = false;
+                        feedbackEl.textContent = '';
+                    }
+                } else {
+                    setView('gameMode', 'gameWaitingView');
+                }
+            } else if (globalMode === 'transition') {
+                setAppMode('transitionMode');
+            } else {
+                // Survey Mode
+                setAppMode('surveyMode');
+                if (globalStage === 1) {
+                    if (mySubmissionId) {
+                        setView('surveyMode', 'waitingView');
+                    } else {
+                        setView('surveyMode', 'stage1View');
+                    }
+                } else if (globalStage === 2) {
+                    if (!mySubmissionId) {
+                        setView('surveyMode', 'stage1View'); 
+                    } else {
+                        fetchAndBuildStage2();
+                    }
+                }
+            }
+        }
+
+        // --- GAME LOGIC ---
+        window.submitGuess = async function() {
+            if(gameActiveWord < 0) return;
+            const guess = document.getElementById('gameGuessInput').value.trim();
+            if(!guess) return;
+
+            const btn = document.getElementById('gameSubmitBtn');
+            const input = document.getElementById('gameGuessInput');
+            btn.disabled = true;
+            input.disabled = true;
+
+            try {
+                await push(ref(db, `game_guesses/${gameActiveWord}`), {
+                    studentName: studentName,
+                    guess: guess,
+                    timestamp: serverTimestamp()
+                });
+                guessedWords[gameActiveWord] = true;
+                document.getElementById('gameFeedback').textContent = 'Đã gửi! Chờ kết quả trên bảng...';
+                document.getElementById('gameFeedback').style.color = 'var(--secondary)';
+            } catch(e) {
+                btn.disabled = false;
+                input.disabled = false;
+                alert('Lỗi khi gửi!');
+            }
+        }
+
+        // --- SURVEY LOGIC ---
+        window.submitStage1 = async function() {
+            const career = document.getElementById('s1_career').value.trim();
+            const desc = document.getElementById('s1_desc').value.trim();
+
+            if(!career || !desc) {
+                alert('Vui lòng điền đủ thông tin!');
+                return;
+            }
+
+            const btn = document.querySelector('#stage1View .btn-submit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Đang gửi...';
+
+            const payload = {
+                studentName: studentName,
+                timestamp: serverTimestamp(),
+                careers: [{ name: career, description: desc }]
+            };
+
+            try {
+                const newRef = await push(ref(db, 'submissions'), payload);
+                mySubmissionId = newRef.key;
+                localStorage.setItem('mySubmissionId', mySubmissionId);
+                evaluateRouting();
+            } catch (e) {
+                console.error(e);
+                alert('Có lỗi xảy ra!');
+                btn.disabled = false;
+                btn.innerHTML = 'Gửi <i class="ph-bold ph-paper-plane-right"></i>';
+            }
+        }
+
+        async function fetchAndBuildStage2() {
+            try {
+                const snapshot = await get(ref(db, `submissions/${mySubmissionId}`));
+                if(snapshot.exists()) {
+                    myData = snapshot.val();
+                    const container = document.getElementById('stage2FormContainer');
+                    
+                    if(myData.careers[0].details) {
+                        document.getElementById('stage2View').innerHTML = `
+                            <div class="card waiting-msg">
+                                <i class="ph-fill ph-check-circle" style="color:var(--secondary)"></i>
+                                <h2>Hoàn thành xuất sắc!</h2>
+                                <p style="margin-top:12px;">Cảm ơn bạn đã tham gia khảo sát. Hãy nhìn lên màn hình chính nhé.</p>
+                            </div>
+                        `;
+                        setView('surveyMode', 'stage2View');
+                        return;
+                    }
+
+                    let html = '';
+                    myData.careers.forEach((c, i) => {
+                        html += `
+                            <div class="dynamic-block">
+                                <h3 class="career-title"><i class="ph-fill ph-push-pin"></i> Nghề: ${c.name}</h3>
+                                
+                                <div class="label-with-icon"><i class="ph-bold ph-briefcase"></i> Công việc/ Hoạt động đặc trưng:</div>
+                                <textarea id="st2_task_${i}" placeholder="Nuôi, cấy, chăm sóc..."></textarea>
+                                
+                                <div class="label-with-icon"><i class="ph-bold ph-brain"></i> Yêu cầu về năng lực:</div>
+                                <textarea id="st2_cap_${i}" placeholder="Có khả năng nghiên cứu..."></textarea>
+                                
+                                <div class="label-with-icon"><i class="ph-bold ph-star"></i> Yêu cầu về phẩm chất:</div>
+                                <textarea id="st2_qual_${i}" placeholder="Cẩn thận, tỉ mỉ..."></textarea>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                    setView('surveyMode', 'stage2View');
+                } else {
+                    localStorage.removeItem('mySubmissionId');
+                    mySubmissionId = null;
+                    evaluateRouting();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        window.submitStage2 = async function() {
+            if(!myData) return;
+
+            const btn = document.querySelector('#stage2View .btn-submit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Đang gửi...';
+
+            const updates = {};
+            let hasError = false;
+
+            myData.careers.forEach((c, i) => {
+                const task = document.getElementById(`st2_task_${i}`).value.trim();
+                const cap = document.getElementById(`st2_cap_${i}`).value.trim();
+                const qual = document.getElementById(`st2_qual_${i}`).value.trim();
+
+                if(!task || !cap || !qual) {
+                    hasError = true;
+                }
+
+                updates[`submissions/${mySubmissionId}/careers/${i}/details`] = {
+                    task: task,
+                    capacity: cap,
+                    quality: qual
+                };
+            });
+
+            if(hasError) {
+                alert('Vui lòng điền đủ tất cả các ô trống!');
+                btn.disabled = false;
+                btn.innerHTML = 'Gửi câu trả lời <i class="ph-bold ph-check-circle"></i>';
+                return;
+            }
+
+            try {
+                await update(ref(db), updates);
+                fetchAndBuildStage2();
+            } catch (e) {
+                console.error(e);
+                alert('Lỗi!');
+                btn.disabled = false;
+                btn.innerHTML = 'Gửi câu trả lời <i class="ph-bold ph-check-circle"></i>';
+            }
+        }
+
+        // Initialize display
+        evaluateRouting();
+
+    </script>
+</body>
+</html>

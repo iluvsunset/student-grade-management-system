@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển - Người Thuyết Trình</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --success: #10B981;
+            --danger: #EF4444;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text-main); padding: 24px; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header-panel {
+            background: var(--card-bg);
+            padding: 24px 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h1 { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .header-title i { color: var(--primary); }
+
+        .master-tabs {
+            display: flex;
+            gap: 8px;
+            background: var(--bg);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .master-tab {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            background: transparent;
+        }
+        .master-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79,70,229,0.2);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 16px;
+            background: var(--bg);
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            justify-content: center;
+        }
+
+        .btn-stage {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--text-muted);
+        }
+        .btn-stage.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        .btn-action { padding: 10px 16px; border: none; border-radius: 10px; font-weight: 600; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-show { background: #EEF2FF; color: var(--primary); }
+        .btn-show:hover { background: #E0E7FF; }
+        .btn-approve { background: var(--success); color: white; }
+        .btn-approve:hover { background: #059669; }
+        .btn-danger { background: #FEE2E2; color: var(--danger); }
+        .btn-danger:hover { background: #FECACA; }
+        .btn-warning { background: #FEF3C7; color: #D97706; }
+        .btn-warning:hover { background: #FDE68A; }
+
+        /* Panels */
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* Submissions styling */
+        .submission-card { background: var(--card-bg); border-radius: 20px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
+        .student-name { font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; color: var(--primary); }
+        .career-item { background: #F8FAFC; border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .career-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .career-info h3 { font-size: 1.125rem; color: var(--text-main); margin-bottom: 4px; }
+        .career-info p { color: var(--text-muted); font-size: 0.9375rem; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); }
+        .detail-box h4 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        .detail-box p { font-size: 0.9375rem; color: var(--text-main); }
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; background: #D1FAE5; color: #065F46; }
+
+        /* Game styling */
+        .game-grid { display: flex; flex-direction: column; gap: 16px; }
+        .word-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s; }
+        .word-card.active-word { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79,70,229,0.1); }
+        .word-title { font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; }
+        .game-controls { display: flex; gap: 8px; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-content { background: white; border-radius: 24px; width: 100%; max-width: 900px; max-height: 85vh; overflow-y: auto; position: relative; padding: 32px; transform: scale(0.95) translateY(20px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .close-btn { background: #F1F5F9; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        .edit-input { width: 100%; padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-family: inherit; font-size: 0.9375rem; margin-bottom: 4px; }
+        textarea.edit-input { min-height: 60px; resize: vertical; }
+        .career-name-input { font-size: 1.125rem; font-weight: bold; color: #D97706; background: transparent; border: 1px dashed transparent; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-panel">
+            <div class="header-title">
+                <h1><i class="ph-fill ph-game-controller"></i> Bảng Điều Khiển</h1>
+            </div>
+            
+            <div class="master-tabs">
+                <button class="master-tab active" id="tabGame" onclick="setAppMode('game')"><i class="ph-bold ph-magnifying-glass"></i> Tìm Ô Chữ</button>
+                <button class="master-tab" id="tabSurvey" onclick="setAppMode('survey')"><i class="ph-bold ph-list-checks"></i> Khảo Sát</button>
+            </div>
+        </div>
+
+        <!-- GAME PANEL -->
+        <div id="gamePanel" class="panel active">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.25rem;"><i class="ph-bold ph-list-numbers"></i> Danh sách Từ Khóa</h2>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn-action btn-danger" onclick="resetGame()"><i class="ph-bold ph-arrow-counter-clockwise"></i> Chơi lại từ đầu</button>
+                    <button class="btn-action" style="background: linear-gradient(135deg, #8B5CF6, #6366F1); color: white; padding: 12px 24px;" onclick="triggerTransition()">
+                        <i class="ph-bold ph-magic-wand"></i> Chuyển sang Khảo sát
+                    </button>
+                </div>
+            </div>
+            <div class="game-grid" id="gameGrid">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- SURVEY PANEL -->
+        <div id="surveyPanel" class="panel">
+            <div class="control-group">
+                <button class="btn-stage active" id="btnStage1" onclick="setStage(1)">
+                    <i class="ph-bold ph-number-circle-one"></i> Giai đoạn 1 (Cơ bản)
+                </button>
+                <button class="btn-stage" id="btnStage2" onclick="setStage(2)">
+                    <i class="ph-bold ph-number-circle-two"></i> Giai đoạn 2 (Chi tiết)
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-bottom: 24px; justify-content: center;">
+                <button class="btn-action btn-warning" onclick="document.getElementById('suggestedModal').classList.add('show')">
+                    <i class="ph-bold ph-lightbulb"></i> Đáp án của Thuyết Trình
+                </button>
+                <button class="btn-action btn-danger" onclick="clearBoard()">
+                    <i class="ph-bold ph-trash"></i> Xóa bảng
+                </button>
+                <button class="btn-action" onclick="hidePresenterSpotlight()" style="background: #F1F5F9; color: #475569;">
+                    <i class="ph-bold ph-x-circle"></i> Đóng Trình Chiếu
+                </button>
+            </div>
+
+            <div id="submissionsContainer">
+                <div style="text-align:center; padding:40px; color:#64748B;">Đang tải dữ liệu...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggested Answers Modal -->
+    <div class="modal-overlay" id="suggestedModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="font-size: 1.5rem; display: flex; align-items:center; gap: 8px; color: #F59E0B;"><i class="ph-fill ph-lightbulb"></i> Bảng Đáp Án Của Người Thuyết Trình</h2>
+                <button class="close-btn" onclick="document.getElementById('suggestedModal').classList.remove('show')"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div id="suggestedList"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        import { getDatabase, ref, onValue, update, push, set, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBOZKWfYWsUqk7hnTqLrpthK6oS_cvAMgQ",
+            authDomain: "hdtnhn-d34d4.firebaseapp.com",
+            databaseURL: "https://hdtnhn-d34d4-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "hdtnhn-d34d4",
+            storageBucket: "hdtnhn-d34d4.firebasestorage.app",
+            messagingSenderId: "972353809708",
+            appId: "1:972353809708:web:68d6fba713321ef19c5089",
+            measurementId: "G-QGDNF7GFPL"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- GAME LOGIC (WORD SEARCH) ---
+        const gameWords = ["Y TẾ", "SỨC KHỎE", "GIÁO DỤC", "CÔNG NGHỆ THÔNG TIN", "KINH DOANH", "DU LỊCH", "NGHỆ THUẬT"];
+        
+        let activeWordIndex = -1;
+        let isRevealed = false;
+        let revealedWordsMap = {};
+
+        function renderGameGrid() {
+            const container = document.getElementById('gameGrid');
+            container.innerHTML = gameWords.map((word, index) => {
+                const isActive = index === activeWordIndex;
+                const isFound = revealedWordsMap[index];
+
+                let controlsHtml = '';
+                if (isFound) {
+                    controlsHtml = `<div style="color: var(--success); font-weight: 700; display:flex; align-items:center; gap:6px;"><i class="ph-fill ph-check-circle" style="font-size:1.2rem;"></i> Đã tìm thấy</div>`;
+                } else if (!isActive) {
+                    controlsHtml = `<button class="btn-action btn-show" onclick="activateWord(${index})"><i class="ph-bold ph-play"></i> Bắt đầu tìm từ này</button>`;
+                } else {
+                    controlsHtml = `
+                        <button class="btn-action btn-warning" onclick="deactivateWord()"><i class="ph-bold ph-pause"></i> Dừng lại</button>
+                        <button class="btn-action btn-approve" onclick="revealWord(${index})"><i class="ph-bold ph-eye"></i> Hiện đáp án lên bảng</button>
+                    `;
+                }
+
+                return `
+                    <div class="word-card ${isActive && !isFound ? 'active-word' : ''}" style="${isFound ? 'opacity: 0.6; background: #F8FAFC;' : ''}">
+                        <div class="word-title">
+                            <span>Từ khóa ${index + 1}: <span style="color:${isFound ? 'var(--text-muted)' : 'var(--primary)'}">${word}</span></span>
+                        </div>
+                        <div class="game-controls" style="margin-top:12px;">
+                            ${controlsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.activateWord = function(index) {
+            update(ref(db, 'app_control/game'), { activeWordIndex: index, isRevealed: false });
+        };
+        window.deactivateWord = function() {
+            update(ref(db, 'app_control/game'), { activeWordIndex: -1, isRevealed: false });
+        };
+        window.revealWord = function(index) {
+            const updates = {};
+            updates[`app_control/game/isRevealed`] = true;
+            updates[`app_control/game/revealed/${index}`] = true;
+            update(ref(db), updates);
+        };
+        window.resetGame = function() {
+            if(confirm('Bạn có chắc muốn làm lại trò chơi này từ đầu? Toàn bộ điểm số sẽ bị xóa.')) {
+                remove(ref(db, 'game_guesses'));
+                set(ref(db, 'app_control/game'), { activeWordIndex: -1, isRevealed: false, revealed: null });
+            }
+        };
+
+        window.triggerTransition = function() {
+            update(ref(db, 'app_control'), { mode: 'transition' });
+        };
+
+        // --- GLOBAL APP LOGIC ---
+        window.setAppMode = function(mode) {
+            update(ref(db, 'app_control'), { mode: mode });
+        };
+
+        onValue(ref(db, 'app_control'), (snapshot) => {
+            const data = snapshot.val() || {};
+            const mode = data.mode || 'survey';
+            
+            document.getElementById('tabGame').classList.toggle('active', mode === 'game');
+            document.getElementById('tabSurvey').classList.toggle('active', mode === 'survey' || mode === 'transition');
+            
+            document.getElementById('gamePanel').classList.toggle('active', mode === 'game');
+            document.getElementById('surveyPanel').classList.toggle('active', mode === 'survey' || mode === 'transition');
+
+            if(data.game) {
+                activeWordIndex = data.game.activeWordIndex !== undefined ? data.game.activeWordIndex : -1;
+                isRevealed = data.game.isRevealed || false;
+                revealedWordsMap = data.game.revealed || {};
+            } else {
+                activeWordIndex = -1;
+                isRevealed = false;
+                revealedWordsMap = {};
+            }
+            renderGameGrid();
+        });
+
+        // --- SURVEY LOGIC ---
+        let currentStage = 1;
+        let approvedKeys = new Set(); 
+
+        onValue(ref(db, 'app_control/stage'), (snapshot) => {
+            currentStage = snapshot.val() || 1;
+            document.getElementById('btnStage1').classList.toggle('active', currentStage === 1);
+            document.getElementById('btnStage2').classList.toggle('active', currentStage === 2);
+            renderFromCache(); 
+        });
+
+        onValue(ref(db, 'approved_list'), (snapshot) => {
+            approvedKeys.clear();
+            if(snapshot.exists()) {
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    approvedKeys.add(`${data.studentName}_${data.careerName}`);
+                });
+            }
+            renderFromCache();
+        });
+
+        window.setStage = function(stage) { set(ref(db, 'app_control/stage'), stage); };
+        window.clearBoard = function() {
+            if(confirm('Xóa sạch bảng trưng bày?')) {
+                remove(ref(db, 'approved_list'));
+                update(ref(db, 'app_control/spotlight'), { active: false });
+            }
+        };
+
+        let cachedSubmissions = [];
+        onValue(ref(db, 'submissions'), (snapshot) => {
+            const data = snapshot.val();
+            if (!data) cachedSubmissions = [];
+            else {
+                cachedSubmissions = Object.entries(data).map(([key, val]) => ({ id: key, ...val }));
+                cachedSubmissions.sort((a, b) => b.timestamp - a.timestamp);
+            }
+            renderFromCache();
+        });
+
+        function renderFromCache() {
+            const container = document.getElementById('submissionsContainer');
+            if (cachedSubmissions.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#64748B;">Chưa có bài nộp nào.</div>';
+                return;
+            }
+
+            container.innerHTML = cachedSubmissions.map(sub => {
+                const careersHtml = (sub.careers || []).map((c, index) => {
+                    const isApproved = approvedKeys.has(`${sub.studentName}_${c.name}`);
+                    const dataObj = { studentName: sub.studentName, careerName: c.name, desc: c.description, task: c.details?.task || '', capacity: c.details?.capacity || '', quality: c.details?.quality || '', isPresenter: false };
+                    const dataStr = encodeURIComponent(JSON.stringify(dataObj));
+
+                    let detailsHtml = '';
+                    if (currentStage === 2) {
+                        detailsHtml = `
+                            <div class="details-grid">
+                                <div class="detail-box"><h4>Công việc đặc trưng</h4><p>${c.details?.task || '<em style="color:#CBD5E1">Chưa điền</em>'}</p></div>
+                                <div class="detail-box"><h4>Yêu cầu năng lực</h4><p>${c.details?.capacity || '<em style="color:#CBD5E1">Chưa điền</em>'}</p></div>
+                                <div class="detail-box"><h4>Phẩm chất</h4><p>${c.details?.quality || '<em style="color:#CBD5E1">Chưa điền</em>'}</p></div>
+                            </div>`;
+                    }
+
+                    return `
+                        <div class="career-item">
+                            <div class="career-header">
+                                <div class="career-info">
+                                    <h3>${c.name} ${isApproved ? '<span class="status-badge"><i class="ph-bold ph-check"></i> Đã lên bảng</span>' : ''}</h3>
+                                    <p>${c.description}</p>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-action btn-show" onclick="showSpotlight('${dataStr}')"><i class="ph-bold ph-projector-screen"></i> Trình chiếu</button>
+                                    <button class="btn-action btn-approve" onclick="approveAndFly('${dataStr}')"><i class="ph-bold ph-paper-plane-tilt"></i> Duyệt & Bay</button>
+                                </div>
+                            </div>
+                            ${detailsHtml}
+                        </div>`;
+                }).join('');
+
+                return `<div class="submission-card"><div class="student-name"><i class="ph-fill ph-user-circle"></i> ${sub.studentName}</div>${careersHtml}</div>`;
+            }).join('');
+        }
+
+        window.showSpotlight = function(encodedData) {
+            update(ref(db, 'app_control/spotlight'), { active: true, ...JSON.parse(decodeURIComponent(encodedData)) });
+            document.getElementById('suggestedModal').classList.remove('show');
+        };
+
+        window.approveAndFly = function(encodedData) {
+            const data = JSON.parse(decodeURIComponent(encodedData));
+            update(ref(db, 'app_control/spotlight'), { active: true, ...data }).then(() => {
+                setTimeout(() => { push(ref(db, 'approved_list'), data); }, 400);
+            });
+            document.getElementById('suggestedModal').classList.remove('show');
+        };
+
+        // --- PRESENTER SUGGESTIONS ---
+        const defaultSuggestions = [
+            { careerName: 'Y tế', desc: 'Chăm sóc sức khỏe, khám chữa bệnh cho con người.', task: 'Khám bệnh, kê đơn thuốc, phẫu thuật, chăm sóc bệnh nhân.', capacity: 'Kiến thức y khoa, kỹ năng giao tiếp, khả năng chịu áp lực cao.', quality: 'Y đức, cẩn thận, nhân ái, trách nhiệm.' },
+            { careerName: 'Giáo dục', desc: 'Truyền đạt kiến thức và đào tạo.', task: 'Giảng dạy, soạn giáo án, đánh giá học sinh, nghiên cứu.', capacity: 'Khả năng truyền đạt, kiên nhẫn, hiểu tâm lý học sinh.', quality: 'Tâm huyết, yêu nghề, gương mẫu.' },
+            { careerName: 'Công nghệ thông tin', desc: 'Phát triển phần mềm, quản lý hệ thống mạng và dữ liệu.', task: 'Lập trình, kiểm thử phần mềm, bảo mật hệ thống.', capacity: 'Tư duy logic, giải quyết vấn đề, tự học ngôn ngữ mới.', quality: 'Sáng tạo, kiên trì, tỉ mỉ.' }
+        ];
+
+        document.getElementById('suggestedList').innerHTML = defaultSuggestions.map((s, index) => {
+            return `
+                <div class="career-item" style="background: #FFFBEB; border-color: #FDE68A;">
+                    <div class="career-header">
+                        <div class="career-info" style="flex:1; margin-right: 16px;">
+                            <input type="text" id="sug_career_${index}" class="edit-input career-name-input" value="${s.careerName}">
+                            <textarea id="sug_desc_${index}" class="edit-input" placeholder="Đặc điểm...">${s.desc}</textarea>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-action" onclick="showPresenterSpotlight(${index})" style="background:#F59E0B; color:white; padding: 12px 24px;"><i class="ph-bold ph-projector-screen"></i> Trình chiếu riêng</button>
+                        </div>
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-box"><h4>Công việc đặc trưng</h4><textarea id="sug_task_${index}" class="edit-input">${s.task}</textarea></div>
+                        <div class="detail-box"><h4>Yêu cầu năng lực</h4><textarea id="sug_cap_${index}" class="edit-input">${s.capacity}</textarea></div>
+                        <div class="detail-box"><h4>Phẩm chất</h4><textarea id="sug_qual_${index}" class="edit-input">${s.quality}</textarea></div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        window.showPresenterSpotlight = function(index) {
+            update(ref(db, 'app_control/spotlight'), {
+                active: true,
+                studentName: '🎤 ĐÁP ÁN GỢI Ý',
+                careerName: document.getElementById(`sug_career_${index}`).value.trim(),
+                desc: document.getElementById(`sug_desc_${index}`).value.trim(),
+                task: document.getElementById(`sug_task_${index}`).value.trim(),
+                capacity: document.getElementById(`sug_cap_${index}`).value.trim(),
+                quality: document.getElementById(`sug_qual_${index}`).value.trim(),
+                isPresenter: true
+            });
+            document.getElementById('suggestedModal').classList.remove('show');
+        };
+        window.hidePresenterSpotlight = function() { update(ref(db, 'app_control/spotlight'), { active: false }); };
+
+    </script>
+</body>
+</html>
