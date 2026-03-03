@@ -4,20 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Khám Phá Nghề Nghiệp</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root {
             --primary: #4F46E5;
-            --primary-hover: #4338CA;
             --secondary: #10B981;
-            --secondary-hover: #059669;
             --bg: #F3F4F6;
             --card-bg: #FFFFFF;
             --text-main: #1F2937;
-            --text-muted: #6B7280;
             --border: #E5E7EB;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -29,242 +25,212 @@
             display: flex;
             flex-direction: column;
             color: var(--text-main);
+            overflow-x: hidden;
+            touch-action: manipulation;
         }
 
         .header {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
-            padding: 16px 20px;
+            padding: 12px 20px;
             text-align: center;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
         }
 
-        .header h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .header h1 i { color: var(--primary); -webkit-text-fill-color: initial; }
+        .header h1 { font-size: 1.1rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        .container {
-            flex: 1;
-            max-width: 600px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 24px 16px;
-        }
+        .container { flex: 1; padding: 16px; display: flex; flex-direction: column; align-items: center; }
 
         .card {
             background: var(--card-bg);
-            border-radius: 24px;
-            padding: 32px 24px;
-            box-shadow: var(--shadow);
-            margin-bottom: 24px;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
             animation: cardEntrance 0.5s ease;
         }
 
-        @keyframes cardEntrance {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes cardEntrance { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .question-text {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-main);
-        }
+        .question-text { font-size: 1rem; font-weight: 600; margin-bottom: 16px; text-align: center; }
 
         input[type="text"], textarea {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            background: #FAFAFA;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
+            width: 100%; padding: 14px 18px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; margin-bottom: 20px;
         }
-
-        input[type="text"]:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: #FFFFFF;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-        }
-
-        textarea { min-height: 100px; resize: vertical; }
+        input[type="text"]:focus { outline: none; border-color: var(--primary); background: #FFFFFF; }
 
         .btn-submit {
-            width: 100%;
-            padding: 16px 24px;
-            border: none;
+            width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        /* App Modes */
+        .app-mode { display: none; width: 100%; }
+        .app-mode.active { display: flex; flex-direction: column; align-items: center; }
+        .view-section { display: none; width: 100%; }
+        .view-section.active { display: block; }
+
+        .waiting-msg { text-align: center; color: #6B7280; }
+        .waiting-msg i { font-size: 3.5rem; color: var(--border); margin-bottom: 12px; display: block; }
+
+        /* === WORD SEARCH GRID STYLES === */
+        .game-grid-container {
+            user-select: none;
+            touch-action: none;
+            background: white;
+            padding: 8px;
             border-radius: 12px;
-            font-size: 1.125rem;
-            font-weight: 600;
-            background: var(--primary);
-            color: white;
-            cursor: pointer;
+            border: 3px solid #FCD34D;
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 1px;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-            transition: all 0.2s;
+            font-size: 11px;
+            font-weight: 800;
+            color: #475569;
+            background: #F8FAFC;
+            border-radius: 2px;
+            transition: all 0.1s;
         }
 
-        .btn-submit:active { transform: scale(0.98); }
-        .btn-submit:disabled { background: #9CA3AF; box-shadow: none; cursor: not-allowed; }
+        .grid-cell.selected {
+            background: #6366F1;
+            color: white;
+            transform: scale(1.1);
+            z-index: 2;
+        }
 
-        /* App Modes */
-        .app-mode { display: none; }
-        .app-mode.active { display: block; }
-        
-        /* Views within modes */
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        .career-title {
+        .selection-preview {
+            margin-top: 16px;
+            font-size: 1.2rem;
+            font-weight: 800;
             color: var(--primary);
-            font-size: 1.25rem;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 12px;
-            border-bottom: 2px dashed var(--border);
+            min-height: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .waiting-msg {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-        }
-        .waiting-msg i { font-size: 4rem; color: var(--border); margin-bottom: 16px; }
-
-        .dynamic-block { margin-bottom: 40px; padding-bottom: 20px; }
-        .dynamic-block:last-child { border-bottom: none; margin-bottom: 0; }
-        
-        .label-with-icon {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--text-main);
-        }
-        .label-with-icon i { color: var(--secondary); font-size: 1.25rem; }
-
-        /* Game specific */
-        .game-status {
-            text-align: center;
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 12px;
-        }
-
-        .game-clue-box {
+        .game-status-bar {
+            width: 100%;
+            padding: 10px;
             background: #EEF2FF;
-            border: 1px solid #C7D2FE;
-            padding: 16px;
             border-radius: 12px;
-            margin-bottom: 24px;
-            color: var(--primary-hover);
-            font-size: 1rem;
-            line-height: 1.5;
+            margin-bottom: 12px;
             text-align: center;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.9rem;
         }
+
+        .grid-lock {
+            position: relative;
+        }
+        .grid-lock.locked::after {
+            content: "ĐÃ XONG!";
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(2px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #10B981;
+            border-radius: 12px;
+        }
+
+        .trans-card { text-align: center; padding: 40px 20px; }
+        .career-title { color: var(--primary); font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .label-with-icon { display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+        .label-with-icon i { color: var(--secondary); }
+        .dynamic-block { margin-bottom: 24px; }
 
     </style>
 </head>
 <body>
     <div class="header">
-        <h1><i class="ph-fill ph-rocket-launch"></i> Khám Phá Nghề Nghiệp</h1>
+        <h1><i class="ph-fill ph-rocket-launch"></i> KHÁM PHÁ NGHỀ NGHIỆP</h1>
     </div>
 
     <div class="container">
 
-        <!-- GLOBAL NAME ENTRY -->
-        <div id="nameEntryMode" class="app-mode active">
+        <!-- NAME ENTRY -->
+        <div id="nameEntryMode" class="app-mode">
             <div class="card">
-                <div class="question-text"><i class="ph-bold ph-user"></i> Nhập tên của bạn để bắt đầu:</div>
+                <div class="question-text">Nhập tên của bạn để bắt đầu:</div>
                 <input type="text" id="globalName" placeholder="Tên của bạn..." />
                 <button class="btn-submit" onclick="saveName()">Bắt đầu <i class="ph-bold ph-arrow-right"></i></button>
             </div>
         </div>
 
-        <!-- GAME MODE (WORD SEARCH) -->
+        <!-- GAME MODE -->
         <div id="gameMode" class="app-mode">
             <div id="gameWaitingView" class="view-section active">
                 <div class="card waiting-msg">
                     <i class="ph-light ph-game-controller"></i>
                     <h2>Sẵn sàng!</h2>
-                    <p style="margin-top:12px;">Hãy nhìn lên màn hình chính. Khi trò chơi bắt đầu, hãy nhanh mắt tìm từ khóa ẩn trong bảng và gõ vào đây!</p>
+                    <p>Nhìn lên bảng và chờ người thuyết trình bắt đầu trò chơi.</p>
                 </div>
             </div>
 
             <div id="gameActiveView" class="view-section">
-                <div class="card">
-                    <div class="game-status"><i class="ph-bold ph-lightning"></i> TỪ KHÓA SỐ <span id="wordNumDisplay"></span> ĐANG MỞ!</div>
-                    <div class="question-text">Nhập từ khóa bạn tìm thấy trên bảng:</div>
-                    <input type="text" id="gameGuessInput" placeholder="Ví dụ: YTE..." />
-                    <button class="btn-submit" id="gameSubmitBtn" onclick="submitGuess()">Gửi đáp án <i class="ph-bold ph-paper-plane-right"></i></button>
-                    <p id="gameFeedback" style="text-align:center; margin-top:16px; font-weight:600;"></p>
+                <div class="game-status-bar">
+                    <i class="ph-bold ph-lightning"></i> Đang tìm: <span id="targetWordDisplay">...</span>
                 </div>
+                
+                <div class="grid-lock" id="gridLockLayer">
+                    <div class="game-grid-container" id="wsGrid"></div>
+                </div>
+
+                <div class="selection-preview" id="selectionPreview"></div>
+                <p id="gameFeedback" style="text-align:center; margin-top:10px; font-weight:700;"></p>
             </div>
         </div>
 
         <!-- TRANSITION MODE -->
         <div id="transitionMode" class="app-mode">
-            <div class="card waiting-msg">
-                <i class="ph-fill ph-stars" style="color: #F59E0B"></i>
-                <h2 style="color: #F59E0B">Tuyệt vời!</h2>
-                <p style="margin-top:12px;">Các từ khóa bạn vừa tìm được là gì? Hãy chú ý lên màn hình chính nhé!</p>
+            <div class="card trans-card">
+                <i class="ph-fill ph-stars" style="font-size: 4rem; color: #F59E0B; margin-bottom: 12px; display:block;"></i>
+                <h2>Tuyệt vời!</h2>
+                <p>Hãy chú ý lên màn hình chính nhé!</p>
             </div>
         </div>
 
-        <!-- SURVEY MODE (Existing Logic) -->
+        <!-- SURVEY MODE -->
         <div id="surveyMode" class="app-mode">
-            <!-- STAGE 1 VIEW -->
             <div id="stage1View" class="view-section active">
                 <div class="card">
-                    <div class="question-text"><i class="ph-bold ph-briefcase"></i> 1. Nhập một nhóm nghề bạn biết:</div>
+                    <div class="question-text">1. Nhập một nhóm nghề bạn biết:</div>
                     <input type="text" id="s1_career" placeholder="VD: Công nghệ thông tin..." />
-                    
-                    <div class="question-text"><i class="ph-bold ph-text-align-left"></i> 2. Đặc điểm của nhóm nghề này:</div>
-                    <textarea id="s1_desc" placeholder="Mô tả ngắn gọn..."></textarea>
-                    
+                    <div class="question-text">2. Đặc điểm của nhóm nghề này:</div>
+                    <textarea id="s1_desc" placeholder="Mô tả ngắn gọn..." style="width:100%; min-height:80px; padding:12px; border-radius:12px; border:2px solid var(--border); margin-bottom:20px;"></textarea>
                     <button class="btn-submit" onclick="submitStage1()">Gửi <i class="ph-bold ph-paper-plane-right"></i></button>
                 </div>
             </div>
 
-            <!-- WAITING VIEW -->
             <div id="waitingView" class="view-section">
                 <div class="card waiting-msg">
                     <i class="ph-light ph-hourglass-high"></i>
                     <h2>Đã gửi thành công!</h2>
-                    <p style="margin-top:12px;">Vui lòng nhìn lên bảng và đợi người thuyết trình mở phần tiếp theo.</p>
+                    <p>Vui lòng nhìn lên bảng và đợi người thuyết trình mở phần tiếp theo.</p>
                 </div>
             </div>
 
-            <!-- STAGE 2 VIEW -->
             <div id="stage2View" class="view-section">
                 <div class="card">
-                    <p style="color:var(--text-muted); margin-bottom: 24px; text-align:center;">Hãy điền thông tin chi tiết cho nhóm nghề bạn đã chọn ở giai đoạn 1.</p>
-                    <div id="stage2FormContainer">
-                        <!-- Form injected here via JS -->
-                    </div>
-                    <button class="btn-submit" onclick="submitStage2()" style="background: var(--secondary); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                    <div id="stage2FormContainer"></div>
+                    <button class="btn-submit" onclick="submitStage2()" style="background: var(--secondary);">
                         Gửi câu trả lời <i class="ph-bold ph-check-circle"></i>
                     </button>
                 </div>
@@ -291,262 +257,203 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        const gameWordsRaw = ["Y tế", "Sức khỏe", "Giáo dục", "Công nghệ thông tin", "Kinh doanh", "Du lịch", "Nghệ thuật"];
+        const gameWordsNorm = ["YTẾ", "SỨCKHỎE", "GIÁODỤC", "CÔNGNGHỆTHÔNGTIN", "KINHDOANH", "DULỊCH", "NGHỆTHUẬT"];
+        const fixedGridStr = "SỨCKHỎESBAƯÊEECƯBTƯPÂQLĂAÂĐEORAPĐUSUPLEMQÊYXAVXDULHÊCĐVHBÂTKBIKINRÊXĂƯMPBKẾÂPGIYGSRGIÁODỤCIQĐUNÂHĂTEVGÂEDBKÊMSHYỆIDIIĐTÊUUTSÂRDSTDPƯEDMKLÊSUPEOTHHYVVĂEYỊĂXHKÊAÂUĐQUHĐSNCKSMCÊNCẬEƯPPÊƯQHLQKIEHCTONÂVĂBCSDXTLRÂKKRMOÊPATƯBTPVÊVSHBGLDMAƯƯÊOVDOBSCÔNGNGHỆTHÔNGTIN";
+        const paddedGrid = (fixedGridStr + "ABCDEFGHIJKLMNOPQRSTUVWXYZ".repeat(10)).substring(0, 256);
+        
         let studentName = localStorage.getItem('studentName');
         let mySubmissionId = localStorage.getItem('mySubmissionId');
-        
-        let globalMode = 'survey'; // default fallback
-        let globalStage = 1;
-        let gameActiveWord = -1;
-        let myData = null;
+        let globalMode = 'survey', globalStage = 1, gameActiveWordIdx = -1;
+        let revealedWords = {}, guessedWords = {};
 
-        function setAppMode(modeId) {
-            document.querySelectorAll('.app-mode').forEach(m => m.classList.remove('active'));
-            document.getElementById(modeId).classList.add('active');
-        }
+        let selection = [], currentWordText = "";
 
-        function setView(modeContainerId, viewId) {
-            const container = document.getElementById(modeContainerId);
-            container.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-            if(viewId) document.getElementById(viewId).classList.add('active');
-        }
-
-        // --- NAME LOGIC ---
-        window.saveName = function() {
-            const val = document.getElementById('globalName').value.trim();
-            if(!val) { alert('Vui lòng nhập tên!'); return; }
-            studentName = val;
-            localStorage.setItem('studentName', studentName);
-            evaluateRouting();
-        }
-
-        // --- FIREBASE LISTENERS ---
-        let guessedWords = {};
-        
-        onValue(ref(db, 'app_control'), (snapshot) => {
-            const data = snapshot.val() || {};
-            globalMode = data.mode || 'survey';
-            globalStage = data.stage || 1;
-            
-            if(data.game) {
-                gameActiveWord = data.game.activeWordIndex !== undefined ? data.game.activeWordIndex : -1;
-                if (data.game.revealed && data.game.revealed[gameActiveWord]) {
-                    gameActiveWord = -1;
-                }
-            } else {
-                gameActiveWord = -1;
-                guessedWords = {}; // reset on new game
-            }
-            
-            evaluateRouting();
-        });
-
-        // --- ROUTING LOGIC ---
-        function evaluateRouting() {
-            if(!studentName) {
-                setAppMode('nameEntryMode');
-                return;
+        function initGrid() {
+            const container = document.getElementById('wsGrid');
+            container.innerHTML = '';
+            for(let i=0; i<256; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.textContent = paddedGrid[i];
+                cell.dataset.index = i;
+                container.appendChild(cell);
             }
 
-            if (globalMode === 'game') {
-                setAppMode('gameMode');
-                if (gameActiveWord >= 0) {
-                    setView('gameMode', 'gameActiveView');
-                    document.getElementById('wordNumDisplay').textContent = (gameActiveWord + 1);
-                    
-                    const inputEl = document.getElementById('gameGuessInput');
-                    const btnEl = document.getElementById('gameSubmitBtn');
-                    const feedbackEl = document.getElementById('gameFeedback');
-                    
-                    if (guessedWords[gameActiveWord]) {
-                        inputEl.disabled = true;
-                        btnEl.disabled = true;
-                        feedbackEl.textContent = 'Đã gửi! Chờ kết quả trên bảng...';
-                        feedbackEl.style.color = 'var(--secondary)';
-                    } else {
-                        inputEl.value = '';
-                        inputEl.disabled = false;
-                        btnEl.disabled = false;
-                        feedbackEl.textContent = '';
+            const handleTouch = (e) => {
+                if(globalMode !== 'game') return;
+                const touch = e.touches[0];
+                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                if(el && el.classList.contains('grid-cell')) {
+                    const idx = parseInt(el.dataset.index);
+                    if(!selection.includes(idx)) {
+                        selection.push(idx);
+                        el.classList.add('selected');
+                        currentWordText += el.textContent;
+                        document.getElementById('selectionPreview').textContent = currentWordText;
                     }
+                }
+            };
+
+            container.addEventListener('touchstart', (e) => {
+                if(globalMode !== 'game') return;
+                selection = []; currentWordText = "";
+                document.querySelectorAll('.grid-cell.selected').forEach(c => c.classList.remove('selected'));
+                handleTouch(e);
+            });
+            container.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // Prevent scrolling while playing
+                handleTouch(e);
+            }, {passive: false});
+            container.addEventListener('touchend', () => {
+                if(globalMode !== 'game') return;
+                checkGuess();
+            });
+        }
+
+        function checkGuess() {
+            const guessNorm = normalizeString(currentWordText);
+            const guessNormRev = normalizeString(currentWordText.split('').reverse().join(''));
+            
+            let foundIdx = -1;
+            gameWordsNorm.forEach((word, idx) => {
+                const wordNorm = normalizeString(word);
+                if(guessNorm === wordNorm || guessNormRev === wordNorm) {
+                    foundIdx = idx;
+                }
+            });
+
+            if(foundIdx !== -1) {
+                if(!revealedWords[foundIdx] && !guessedWords[foundIdx]) {
+                    submitGuess(foundIdx, currentWordText);
                 } else {
-                    setView('gameMode', 'gameWaitingView');
+                    document.getElementById('gameFeedback').textContent = "Từ này đã được tìm thấy!";
+                    document.getElementById('gameFeedback').style.color = "#3B82F6";
+                    setTimeout(resetSelection, 1000);
                 }
-            } else if (globalMode === 'transition') {
-                setAppMode('transitionMode');
             } else {
-                // Survey Mode
-                setAppMode('surveyMode');
-                if (globalStage === 1) {
-                    if (mySubmissionId) {
-                        setView('surveyMode', 'waitingView');
-                    } else {
-                        setView('surveyMode', 'stage1View');
-                    }
-                } else if (globalStage === 2) {
-                    if (!mySubmissionId) {
-                        setView('surveyMode', 'stage1View'); 
-                    } else {
-                        fetchAndBuildStage2();
-                    }
-                }
+                document.getElementById('gameFeedback').textContent = "Thử lại nhé!";
+                document.getElementById('gameFeedback').style.color = "#EF4444";
+                setTimeout(resetSelection, 800);
             }
         }
 
-        // --- GAME LOGIC ---
-        window.submitGuess = async function() {
-            if(gameActiveWord < 0) return;
-            const guess = document.getElementById('gameGuessInput').value.trim();
-            if(!guess) return;
+        function resetSelection() {
+            document.querySelectorAll('.grid-cell.selected').forEach(c => c.classList.remove('selected'));
+            document.getElementById('selectionPreview').textContent = "";
+            document.getElementById('gameFeedback').textContent = "";
+        }
 
-            const btn = document.getElementById('gameSubmitBtn');
-            const input = document.getElementById('gameGuessInput');
-            btn.disabled = true;
-            input.disabled = true;
-
+        async function submitGuess(wordIdx, guess) {
             try {
-                await push(ref(db, `game_guesses/${gameActiveWord}`), {
+                await push(ref(db, `game_guesses/${wordIdx}`), {
                     studentName: studentName,
                     guess: guess,
                     timestamp: serverTimestamp()
                 });
-                guessedWords[gameActiveWord] = true;
-                document.getElementById('gameFeedback').textContent = 'Đã gửi! Chờ kết quả trên bảng...';
-                document.getElementById('gameFeedback').style.color = 'var(--secondary)';
-            } catch(e) {
-                btn.disabled = false;
-                input.disabled = false;
-                alert('Lỗi khi gửi!');
+                guessedWords[wordIdx] = true;
+                document.getElementById('gameFeedback').textContent = "CHÍNH XÁC!";
+                document.getElementById('gameFeedback').style.color = "var(--secondary)";
+                // Update grid visual
+                document.querySelectorAll('.grid-cell.selected').forEach(c => {
+                    c.classList.remove('selected');
+                    c.style.background = '#10B981';
+                    c.style.color = 'white';
+                });
+                setTimeout(resetSelection, 1000);
+            } catch(e) { alert('Lỗi!'); }
+        }
+
+        function normalizeString(str) {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/\s+/g, '');
+        }
+
+        window.saveName = function() {
+            const val = document.getElementById('globalName').value.trim();
+            if(!val) return;
+            studentName = val; localStorage.setItem('studentName', studentName);
+            evaluateRouting();
+        };
+
+        onValue(ref(db, 'app_control'), (snapshot) => {
+            const data = snapshot.val() || {};
+            globalMode = data.mode || 'survey';
+            globalStage = data.stage || 1;
+            if(data.game) {
+                gameActiveWordIdx = data.game.activeWordIndex !== undefined ? data.game.activeWordIndex : -1;
+                revealedWords = data.game.revealed || {};
+            }
+            evaluateRouting();
+        });
+
+        function evaluateRouting() {
+            if(!studentName) { setMode('nameEntryMode'); return; }
+            if(globalMode === 'game') {
+                setMode('gameMode');
+                showView('gameMode', 'gameActiveView');
+                if(gameActiveWordIdx >= 0) {
+                    document.getElementById('targetWordDisplay').textContent = gameWordsRaw[gameActiveWordIdx];
+                } else {
+                    document.getElementById('targetWordDisplay').textContent = "Mọi từ khóa";
+                }
+                // Check if grid should be locked or updated
+                // We'll keep it interactive so students can find ANY word.
+            } else if(globalMode === 'transition') {
+                setMode('transitionMode');
+            } else {
+                setMode('surveyMode');
+                if(globalStage === 1) showView('surveyMode', mySubmissionId ? 'waitingView' : 'stage1View');
+                else if(globalStage === 2) fetchAndBuildStage2();
             }
         }
 
-        // --- SURVEY LOGIC ---
+        function setMode(id) { document.querySelectorAll('.app-mode').forEach(m => m.classList.toggle('active', m.id === id)); }
+        function showView(modeId, viewId) { document.getElementById(modeId).querySelectorAll('.view-section').forEach(v => v.classList.toggle('active', v.id === viewId)); }
+
         window.submitStage1 = async function() {
             const career = document.getElementById('s1_career').value.trim();
             const desc = document.getElementById('s1_desc').value.trim();
-
-            if(!career || !desc) {
-                alert('Vui lòng điền đủ thông tin!');
-                return;
-            }
-
-            const btn = document.querySelector('#stage1View .btn-submit');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Đang gửi...';
-
-            const payload = {
-                studentName: studentName,
-                timestamp: serverTimestamp(),
-                careers: [{ name: career, description: desc }]
-            };
-
+            if(!career || !desc) return;
             try {
+                const controlSnap = await get(ref(db, 'app_control')), groupCount = controlSnap.val()?.groups_count || 4;
+                const subsSnap = await get(ref(db, 'submissions')), currentSubCount = subsSnap.exists() ? Object.keys(subsSnap.val()).length : 0;
+                const payload = { studentName, group: (currentSubCount % groupCount) + 1, timestamp: serverTimestamp(), careers: [{ name: career, description: desc }] };
                 const newRef = await push(ref(db, 'submissions'), payload);
-                mySubmissionId = newRef.key;
-                localStorage.setItem('mySubmissionId', mySubmissionId);
+                mySubmissionId = newRef.key; localStorage.setItem('mySubmissionId', mySubmissionId);
                 evaluateRouting();
-            } catch (e) {
-                console.error(e);
-                alert('Có lỗi xảy ra!');
-                btn.disabled = false;
-                btn.innerHTML = 'Gửi <i class="ph-bold ph-paper-plane-right"></i>';
-            }
-        }
+            } catch (e) { alert('Lỗi!'); }
+        };
 
         async function fetchAndBuildStage2() {
-            try {
-                const snapshot = await get(ref(db, `submissions/${mySubmissionId}`));
-                if(snapshot.exists()) {
-                    myData = snapshot.val();
-                    const container = document.getElementById('stage2FormContainer');
-                    
-                    if(myData.careers[0].details) {
-                        document.getElementById('stage2View').innerHTML = `
-                            <div class="card waiting-msg">
-                                <i class="ph-fill ph-check-circle" style="color:var(--secondary)"></i>
-                                <h2>Hoàn thành xuất sắc!</h2>
-                                <p style="margin-top:12px;">Cảm ơn bạn đã tham gia khảo sát. Hãy nhìn lên màn hình chính nhé.</p>
-                            </div>
-                        `;
-                        setView('surveyMode', 'stage2View');
-                        return;
-                    }
-
-                    let html = '';
-                    myData.careers.forEach((c, i) => {
-                        html += `
-                            <div class="dynamic-block">
-                                <h3 class="career-title"><i class="ph-fill ph-push-pin"></i> Nghề: ${c.name}</h3>
-                                
-                                <div class="label-with-icon"><i class="ph-bold ph-briefcase"></i> Công việc/ Hoạt động đặc trưng:</div>
-                                <textarea id="st2_task_${i}" placeholder="Nuôi, cấy, chăm sóc..."></textarea>
-                                
-                                <div class="label-with-icon"><i class="ph-bold ph-brain"></i> Yêu cầu về năng lực:</div>
-                                <textarea id="st2_cap_${i}" placeholder="Có khả năng nghiên cứu..."></textarea>
-                                
-                                <div class="label-with-icon"><i class="ph-bold ph-star"></i> Yêu cầu về phẩm chất:</div>
-                                <textarea id="st2_qual_${i}" placeholder="Cẩn thận, tỉ mỉ..."></textarea>
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                    setView('surveyMode', 'stage2View');
-                } else {
-                    localStorage.removeItem('mySubmissionId');
-                    mySubmissionId = null;
-                    evaluateRouting();
-                }
-            } catch (e) {
-                console.error(e);
+            if(!mySubmissionId) { showView('surveyMode', 'stage1View'); return; }
+            const snap = await get(ref(db, `submissions/${mySubmissionId}`));
+            if(!snap.exists()) return;
+            const data = snap.val();
+            if(data.careers[0].details) {
+                document.getElementById('stage2View').innerHTML = `<div class="card waiting-msg"><i class="ph-fill ph-check-circle" style="color:var(--secondary)"></i><h2>Hoàn thành!</h2><p>Hãy nhìn lên màn hình chính nhé.</p></div>`;
+            } else {
+                let html = '';
+                data.careers.forEach((c, i) => {
+                    html += `<div class="dynamic-block"><h3 class="career-title">Nghề: ${c.name}</h3><div class="label-with-icon"><i class="ph-bold ph-briefcase"></i> Công việc đặc trưng:</div><textarea id="st2_task_${i}"></textarea><div class="label-with-icon"><i class="ph-bold ph-brain"></i> Yêu cầu năng lực:</div><textarea id="st2_cap_${i}"></textarea><div class="label-with-icon"><i class="ph-bold ph-star"></i> Phẩm chất:</div><textarea id="st2_qual_${i}"></textarea></div>`;
+                });
+                document.getElementById('stage2FormContainer').innerHTML = html;
             }
+            showView('surveyMode', 'stage2View');
         }
 
         window.submitStage2 = async function() {
-            if(!myData) return;
-
-            const btn = document.querySelector('#stage2View .btn-submit');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Đang gửi...';
-
-            const updates = {};
-            let hasError = false;
-
-            myData.careers.forEach((c, i) => {
-                const task = document.getElementById(`st2_task_${i}`).value.trim();
-                const cap = document.getElementById(`st2_cap_${i}`).value.trim();
-                const qual = document.getElementById(`st2_qual_${i}`).value.trim();
-
-                if(!task || !cap || !qual) {
-                    hasError = true;
-                }
-
-                updates[`submissions/${mySubmissionId}/careers/${i}/details`] = {
-                    task: task,
-                    capacity: cap,
-                    quality: qual
-                };
+            const updates = {}; let hasError = false;
+            const snap = await get(ref(db, `submissions/${mySubmissionId}`));
+            snap.val().careers.forEach((_, i) => {
+                const task = document.getElementById(`st2_task_${i}`).value.trim(), cap = document.getElementById(`st2_cap_${i}`).value.trim(), qual = document.getElementById(`st2_qual_${i}`).value.trim();
+                if(!task || !cap || !qual) hasError = true;
+                updates[`submissions/${mySubmissionId}/careers/${i}/details`] = { task, capacity: cap, quality: qual };
             });
+            if(hasError) { alert('Vui lòng điền đủ!'); return; }
+            await update(ref(db), updates); fetchAndBuildStage2();
+        };
 
-            if(hasError) {
-                alert('Vui lòng điền đủ tất cả các ô trống!');
-                btn.disabled = false;
-                btn.innerHTML = 'Gửi câu trả lời <i class="ph-bold ph-check-circle"></i>';
-                return;
-            }
-
-            try {
-                await update(ref(db), updates);
-                fetchAndBuildStage2();
-            } catch (e) {
-                console.error(e);
-                alert('Lỗi!');
-                btn.disabled = false;
-                btn.innerHTML = 'Gửi câu trả lời <i class="ph-bold ph-check-circle"></i>';
-            }
-        }
-
-        // Initialize display
-        evaluateRouting();
-
+        initGrid(); evaluateRouting();
     </script>
 </body>
 </html>
