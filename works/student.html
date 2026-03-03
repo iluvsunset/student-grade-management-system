@@ -262,7 +262,7 @@
 
         <!-- GAME MODE -->
         <div id="gameMode" class="app-mode">
-            <div id="gameWaitingView" class="view-section active">
+            <div id="gameWaitingView" class="view-section">
                 <div class="card waiting-msg">
                     <i class="ph-light ph-game-controller"></i>
                     <h2>Sẵn sàng!</h2>
@@ -270,7 +270,7 @@
                 </div>
             </div>
 
-            <div id="gameActiveView" class="view-section">
+            <div id="gameActiveView" class="view-section active">
                 <div class="game-card">
                     <div class="game-status-bar">
                         <i class="ph-bold ph-lightning"></i> Tìm các từ khóa nghề nghiệp
@@ -527,7 +527,8 @@
 
         onValue(ref(db, 'app_control'), (snapshot) => {
             const data = snapshot.val() || {};
-            globalMode = data.mode || 'survey';
+            console.log('Firebase app_control update:', data);
+            globalMode = data.mode || 'game'; // Default to game instead of survey
             globalStage = data.stage || 1;
             if(data.game) {
                 gameActiveWordIdx = data.game.activeWordIndex !== undefined ? data.game.activeWordIndex : -1;
@@ -537,6 +538,8 @@
         });
 
         function evaluateRouting() {
+            console.log('Routing - Mode:', globalMode, 'Stage:', globalStage, 'HasName:', !!studentName);
+            
             if(!studentName) {
                 setMode('nameEntryMode');
                 return;
@@ -545,6 +548,7 @@
             if(globalMode === 'game') {
                 setMode('gameMode');
                 showView('gameMode', 'gameActiveView');
+                console.log('Showing game active view');
             } else if(globalMode === 'transition') {
                 setMode('transitionMode');
             } else {
