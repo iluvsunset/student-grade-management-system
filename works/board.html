@@ -8,592 +8,502 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root {
-            --bg: #F1F5F9;
-            --surface: #FFFFFF;
-            --surface-border: #CBD5E1;
-            --text: #0F172A;
-            --text-muted: #475569;
-            --primary: #4338CA;
-            --secondary: #059669;
-            --accent: #D97706;
+            --bg: #F1F5F9; --surface: #FFFFFF; --surface-border: #CBD5E1;
+            --text: #0F172A; --text-muted: #475569;
+            --primary: #4338CA; --secondary: #059669; --accent: #D97706;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow: hidden; position: relative; }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* BOARD MODES */
         .board-mode {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.8s ease;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg);
-            z-index: 1;
+            position: absolute; top:0; left:0; right:0; bottom:0;
+            opacity: 0; pointer-events: none; transition: opacity 0.8s ease;
+            display: flex; flex-direction: column; background: var(--bg); z-index: 1;
         }
-        .board-mode.active {
-            opacity: 1;
-            pointer-events: all;
-            z-index: 10;
-        }
+        .board-mode.active { opacity: 1; pointer-events: all; z-index: 10; }
 
-        /* === GAME MODE STYLES === */
+        /* ========= GAME ========= */
         #gameBoard {
-            justify-content: center;
-            align-items: center;
+            justify-content: center; align-items: center;
             background: #FFFBEB;
             background-image: radial-gradient(#FDE68A 2px, transparent 2px);
             background-size: 30px 30px;
-            color: var(--text);
-            text-align: center;
         }
-        
+
         .game-title {
-            font-size: 3.5vw;
-            font-weight: 900;
-            color: #D97706;
-            margin-bottom: 2vw;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            text-shadow: 2px 2px 0px white;
+            font-size: 3vw; font-weight: 900; color: #D97706;
+            margin-bottom: 2vw; text-transform: uppercase;
+            letter-spacing: 0.05em; text-shadow: 2px 2px 0 white;
         }
 
         .word-search-layout {
-            display: flex;
-            gap: 4vw;
-            align-items: flex-start;
-            justify-content: center;
-            width: 100%;
-            padding: 0 4vw;
+            display: flex; gap: 3vw; align-items: flex-start;
+            justify-content: center; width: 100%; padding: 0 3vw;
         }
 
         .grid-wrapper {
-            position: relative;
-            background: white;
-            padding: 1vw;
-            border-radius: 1.5vw;
-            box-shadow: 0 15px 35px rgba(217, 119, 6, 0.15);
-            border: 0.3vw solid #FCD34D;
+            position: relative; background: white;
+            padding: 1vw; border-radius: 1.5vw;
+            box-shadow: 0 15px 35px rgba(217,119,6,0.15);
+            border: 0.3vw solid #FCD34D; flex-shrink: 0;
         }
 
         .grid-container {
-            display: grid;
-            grid-template-columns: repeat(16, 1fr);
-            gap: 0.3vw;
-            position: relative;
-            z-index: 2;
+            display: grid; grid-template-columns: repeat(16, 1fr);
+            gap: 0.2vw; position: relative; z-index: 2;
         }
 
         .grid-cell {
-            width: 2.5vw;
-            height: 2.5vw;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5vw;
-            font-weight: 800;
-            color: #475569;
-            text-transform: uppercase;
-            user-select: none;
-            border-radius: 0.3vw;
-            transition: all 0.3s ease;
+            width: 2.4vw; height: 2.4vw;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3vw; font-weight: 800; color: #475569;
+            text-transform: uppercase; user-select: none;
+            border-radius: 0.2vw; transition: all 0.3s;
         }
 
-        /* Student selection indicators */
-        .grid-cell.student-selecting {
-            background: rgba(99, 102, 241, 0.3);
-            transform: scale(1.1);
-        }
-
-        #highlightsContainer {
+        /* overlay canvas for circles */
+        #circlesCanvas {
             position: absolute;
-            top: 1vw; left: 1vw; right: 1vw; bottom: 1vw;
-            z-index: 1;
-            pointer-events: none;
+            top: 1vw; left: 1vw;
+            pointer-events: none; z-index: 10;
         }
 
-        .highlight-pill {
+        /* name tags that float near circles */
+        .name-tag {
             position: absolute;
+            background: white;
+            border: 2px solid currentColor;
             border-radius: 999px;
-            opacity: 0;
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            transform: scale(0.8);
-            border-width: 0.3vw;
-            border-style: solid;
+            padding: 0.2vw 0.8vw;
+            font-size: 1vw; font-weight: 700;
+            white-space: nowrap;
+            z-index: 20; pointer-events: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+            transition: all 0.5s ease;
+            display: flex; align-items: center; gap: 0.4vw;
         }
-        
-        .highlight-pill.show { opacity: 1; transform: scale(1); }
+        .name-tag.pending { color: #6366F1; border-color: #6366F1; animation: pulse-tag 1.5s ease-in-out infinite; }
+        .name-tag.correct { color: #10B981; border-color: #10B981; }
+        .name-tag.wrong { color: #EF4444; border-color: #EF4444; }
 
-        /* Student selection path */
-        .student-selection-path {
-            position: absolute;
-            background: rgba(99, 102, 241, 0.4);
-            border: 0.2vw solid #6366F1;
-            border-radius: 999px;
-            transition: all 0.2s ease;
-            pointer-events: none;
-        }
+        @keyframes pulse-tag { 0%,100% { opacity:1; transform: scale(1); } 50% { opacity:0.7; transform: scale(0.97); } }
 
         .word-list-panel {
-            background: white;
-            padding: 2vw;
-            border-radius: 1.5vw;
-            box-shadow: 0 15px 35px rgba(217, 119, 6, 0.15);
-            border: 0.3vw solid #FCD34D;
-            text-align: left;
-            min-width: 22vw;
+            background: white; padding: 1.5vw; border-radius: 1.5vw;
+            box-shadow: 0 15px 35px rgba(217,119,6,0.15);
+            border: 0.3vw solid #FCD34D; text-align: left; min-width: 20vw;
         }
-
-        .word-list-title { font-size: 1.8vw; color: #B45309; font-weight: 900; margin-bottom: 1.5vw; text-align: center; text-transform: uppercase; }
-        .word-list-items { display: flex; flex-direction: column; gap: 1vw; }
-        .word-list-item { font-size: 1.4vw; font-weight: 800; color: #9CA3AF; display: flex; align-items: center; gap: 1vw; transition: all 0.3s ease; }
-        .word-list-item i { font-size: 1.8vw; opacity: 0; }
+        .word-list-title { font-size: 1.5vw; color: #B45309; font-weight: 900; margin-bottom: 1.2vw; text-align: center; text-transform: uppercase; }
+        .word-list-items { display: flex; flex-direction: column; gap: 0.8vw; }
+        .word-list-item { font-size: 1.3vw; font-weight: 800; color: #9CA3AF; display: flex; align-items: center; gap: 0.8vw; transition: all 0.3s; }
+        .word-list-item i { font-size: 1.6vw; opacity: 0; }
         .word-list-item.found { color: #10B981; text-decoration: line-through; }
         .word-list-item.found i { opacity: 1; color: #10B981; }
 
-        .winner-announcement {
-            position: absolute;
-            bottom: 3vw; left: 50%;
-            transform: translateX(-50%) translateY(50px);
-            background: #10B981;
-            color: white;
-            padding: 1vw 3vw;
-            border-radius: 999px;
-            font-size: 2vw;
-            font-weight: 800;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            align-items: center; gap: 1vw;
-            white-space: nowrap;
-        }
-        .winner-announcement.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* === TRANSITION MODE STYLES === */
-        #transitionBoard { justify-content: center; align-items: center; text-align: center; background: #000000; z-index: 50; }
+        /* ========= TRANSITION ========= */
+        #transitionBoard { justify-content: center; align-items: center; text-align: center; background: #000; z-index: 50; }
         .floating-words-container { position: absolute; inset: 0; z-index: 1; perspective: 1000px; }
-        .float-word { position: absolute; font-size: 4vw; font-weight: 900; opacity: 0; text-transform: uppercase; text-shadow: 0 0 20px currentColor; transform: translateZ(-1000px) scale(0); transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        .transition-message { position: relative; z-index: 2; font-size: 3.5vw; font-weight: 800; line-height: 1.4; color: #FFFFFF; max-width: 80%; opacity: 0; transform: translateY(50px); transition: all 1s ease; }
-        .transition-message span { color: #FCD34D; font-size: 5.5vw; display: block; margin-top: 1.5vw; letter-spacing: 0.1em; text-shadow: 0 0 40px rgba(252, 211, 77, 0.4); }
+        .float-word { position: absolute; font-size: 4vw; font-weight: 900; opacity: 0; text-transform: uppercase; text-shadow: 0 0 20px currentColor; transform: translateZ(-1000px) scale(0); transition: all 1.5s cubic-bezier(0.25,1,0.5,1); }
+        .transition-message { position: relative; z-index: 2; font-size: 3.5vw; font-weight: 800; line-height: 1.4; color: #fff; max-width: 80%; opacity: 0; transform: translateY(50px); transition: all 1s ease; }
+        .transition-message span { color: #FCD34D; font-size: 5.5vw; display: block; margin-top: 1.5vw; }
 
-        /* === SURVEY MODE STYLES === */
-        #surveyBoard { padding: 3vw; background-image: radial-gradient(at 0% 0%, rgba(67, 56, 202, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(5, 150, 105, 0.05) 0px, transparent 50%); }
+        /* ========= SURVEY ========= */
+        #surveyBoard { padding: 3vw; }
         .header { text-align: center; margin-bottom: 2vw; }
-        .header h1 { font-size: 3.5vw; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
-        .board-container { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 24px; padding: 1px; box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 23px; }
-        th { background: #1E293B; padding: 1.5vw 2vw; text-align: left; font-weight: 700; color: #F8FAFC; text-transform: uppercase; font-size: 1.2vw; letter-spacing: 0.05em; border-bottom: 2px solid var(--surface-border); }
-        .group-badge { display: inline-flex; align-items: center; gap: 0.5vw; background: #EEF2FF; color: var(--primary); padding: 0.6vw 1.2vw; border-radius: 1vw; font-weight: 800; font-size: 1.4vw; border: 2px solid #C7D2FE; }
+        .header h1 { font-size: 3.5vw; font-weight: 800; color: var(--text); }
+        .board-container { background: rgba(255,255,255,0.9); border-radius: 24px; padding: 1px; box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 23px; }
+        th { background: #1E293B; padding: 1.5vw 2vw; text-align: left; font-weight: 700; color: #F8FAFC; text-transform: uppercase; font-size: 1.2vw; letter-spacing: 0.05em; }
+        td { padding: 1.5vw 2vw; border-bottom: 1px solid var(--surface-border); color: var(--text); font-weight: 500; font-size: 1.3vw; }
         .student-name-badge { font-weight: 700; color: var(--text); font-size: 1.3vw; }
-        td { padding: 1.5vw 2vw; border-bottom: 1px solid var(--surface-border); vertical-align: top; line-height: 1.6; color: var(--text); font-weight: 500; font-size: 1.3vw; }
         .career-name { font-weight: 800; color: var(--secondary); font-size: 1.4vw; white-space: nowrap; }
         .stage2-col { display: none; }
         body[data-stage="2"] .stage2-col { display: table-cell; }
 
-        /* SPOTLIGHT OVERLAY */
-        #spotlightOverlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(12px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease, background 0.5s ease; }
+        /* ========= SPOTLIGHT ========= */
+        #spotlightOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
         #spotlightOverlay.active { opacity: 1; pointer-events: all; }
         .spotlight-content { max-width: 90vw; width: 90%; text-align: center; display: flex; flex-direction: column; gap: 2vw; }
-        .spot-item { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .spot-item { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.175,0.885,0.32,1.275); }
         #spotlightOverlay.active .spot-item { opacity: 1; transform: translateY(0); }
-        .spot-name { font-size: 2vw; color: #A5B4FC; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1vw; }
-        .spot-phase1-container { display: flex; align-items: stretch; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow: hidden; }
+        .spot-name { font-size: 2vw; color: #A5B4FC; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .spot-phase1-container { display: flex; align-items: stretch; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; overflow: hidden; }
         .spot-col { flex: 1; padding: 3vw; display: flex; flex-direction: column; justify-content: center; }
-        .spot-col-left { text-align: right; border-right: 2px dashed rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
-        .spot-col-right { text-align: left; transition: all 0.3s ease; }
+        .spot-col-left { text-align: right; border-right: 2px dashed rgba(255,255,255,0.2); }
+        .spot-col-right { text-align: left; }
         body[data-stage="2"] .spot-col-left { text-align: center; border-right: none; width: 100%; }
-        body[data-stage="2"] .spot-col-left .spot-category-label { justify-content: center; }
         body[data-stage="2"] .spot-col-right { display: none; }
         .spot-category-label { color: #FCD34D; font-size: 1.2vw; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1vw; display: flex; align-items: center; gap: 0.5vw; font-weight: 700; }
         .spot-col-left .spot-category-label { justify-content: flex-end; }
-        .spot-career { font-size: 4vw; font-weight: 800; background: linear-gradient(135deg, #34D399, #10B981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; margin: 0; white-space: nowrap; }
-        .spot-desc { font-size: 2vw; color: #F8FAFC; line-height: 1.6; font-weight: 500; margin: 0; }
-        .spot-detail-box { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); padding: 2vw; border-radius: 20px; text-align: left; display: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .spot-career { font-size: 4vw; font-weight: 800; background: linear-gradient(135deg,#34D399,#10B981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }
+        .spot-desc { font-size: 2vw; color: #F8FAFC; line-height: 1.6; font-weight: 500; }
+        .spot-detail-box { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 2vw; border-radius: 20px; text-align: left; display: none; }
         body[data-stage="2"] .spot-detail-box { display: block; }
         .spot-detail-box h4 { color: #FCD34D; font-size: 1.2vw; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5vw; display: flex; align-items: center; gap: 0.5vw; }
-        .spot-detail-box h4 i { font-size: 1.5vw; }
-        .spot-detail-box p { font-size: 1.5vw; color: #F1F5F9; line-height: 1.6; font-weight: 500; margin: 0; }
-        .flying-clone { position: fixed; z-index: 9999; pointer-events: none; margin: 0 !important; box-sizing: border-box; transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: left, top, width, height, font-size, color; }
+        .spot-detail-box p { font-size: 1.5vw; color: #F1F5F9; line-height: 1.6; font-weight: 500; }
+        .flying-clone { position: fixed; z-index: 9999; pointer-events: none; margin: 0 !important; box-sizing: border-box; transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); will-change: left,top,width,height; }
     </style>
 </head>
 <body>
 
-    <!-- GAME MODE -->
-    <div id="gameBoard" class="board-mode active">
-        <h2 class="game-title">TÌM Ô CHỮ NGHỀ NGHIỆP</h2>
-        <div class="word-search-layout">
-            <div class="grid-wrapper">
-                <div class="grid-container" id="wsGrid"></div>
-                <div id="highlightsContainer"></div>
-            </div>
-            <div class="word-list-panel">
-                <div class="word-list-title">TỪ KHÓA CẦN TÌM</div>
-                <div class="word-list-items" id="wordListItems"></div>
-            </div>
+<!-- GAME -->
+<div id="gameBoard" class="board-mode active">
+    <h2 class="game-title">TÌM Ô CHỮ NGHỀ NGHIỆP</h2>
+    <div class="word-search-layout">
+        <div class="grid-wrapper" id="gridWrapper">
+            <div class="grid-container" id="wsGrid"></div>
+            <canvas id="circlesCanvas"></canvas>
         </div>
-        <div class="winner-announcement" id="winnerAnnouncement"></div>
-    </div>
-
-    <!-- TRANSITION MODE -->
-    <div id="transitionBoard" class="board-mode">
-        <div class="floating-words-container" id="floatingWords"></div>
-        <div class="transition-message" id="transitionMessage">
-            Tất cả những từ khóa trên đều thuộc các
-            <span>NHÓM NGHỀ NGHIỆP</span>
-            <br>
-            Hãy cùng nhau bước vào phần khảo sát chi tiết nhé!
+        <div class="word-list-panel">
+            <div class="word-list-title">TỪ KHÓA CẦN TÌM</div>
+            <div class="word-list-items" id="wordListItems"></div>
         </div>
     </div>
+</div>
 
-    <!-- SURVEY MODE -->
-    <div id="surveyBoard" class="board-mode">
-        <div class="header"><h1>Bảng Trưng Bày Nghề Nghiệp</h1></div>
-        <div class="board-container">
-            <table id="mainTable">
-                <thead>
-                    <tr>
-                        <th width="25%">Người trình bày</th>
-                        <th width="20%">Nhóm nghề</th>
-                        <th width="25%">Đặc điểm</th>
-                        <th width="15%" class="stage2-col">Công việc đặc trưng</th>
-                        <th width="12%" class="stage2-col">Yêu cầu năng lực</th>
-                        <th width="13%" class="stage2-col">Phẩm chất</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
+<!-- TRANSITION -->
+<div id="transitionBoard" class="board-mode">
+    <div class="floating-words-container" id="floatingWords"></div>
+    <div class="transition-message" id="transitionMessage">
+        Tất cả những từ khóa trên đều thuộc các
+        <span>NHÓM NGHỀ NGHIỆP</span>
+        Hãy cùng nhau bước vào phần khảo sát chi tiết nhé!
     </div>
+</div>
 
-    <!-- Spotlight Overlay -->
-    <div id="spotlightOverlay">
-        <div class="spotlight-content">
-            <div id="spot_name" class="spot-item spot-name"></div>
-            <div class="spot-item spot-phase1-container">
-                <div class="spot-col spot-col-left">
-                    <div class="spot-category-label">Nhóm Nghề <i class="ph-bold ph-briefcase"></i></div>
-                    <div id="spot_career" class="spot-career"></div>
-                </div>
-                <div class="spot-col spot-col-right">
-                    <div class="spot-category-label"><i class="ph-bold ph-text-align-left"></i> Đặc Điểm</div>
-                    <div id="spot_desc" class="spot-desc"></div>
-                </div>
+<!-- SURVEY -->
+<div id="surveyBoard" class="board-mode">
+    <div class="header"><h1>Bảng Trưng Bày Nghề Nghiệp</h1></div>
+    <div class="board-container">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th width="25%">Người trình bày</th>
+                    <th width="20%">Nhóm nghề</th>
+                    <th width="25%">Đặc điểm</th>
+                    <th width="15%" class="stage2-col">Công việc đặc trưng</th>
+                    <th width="12%" class="stage2-col">Yêu cầu năng lực</th>
+                    <th width="13%" class="stage2-col">Phẩm chất</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Spotlight -->
+<div id="spotlightOverlay">
+    <div class="spotlight-content">
+        <div id="spot_name" class="spot-item spot-name"></div>
+        <div class="spot-item spot-phase1-container">
+            <div class="spot-col spot-col-left">
+                <div class="spot-category-label">Nhóm Nghề <i class="ph-bold ph-briefcase"></i></div>
+                <div id="spot_career" class="spot-career"></div>
             </div>
-            <div id="spot_task_box" class="spot-item spot-detail-box">
-                <h4><i class="ph-bold ph-briefcase"></i> Công việc đặc trưng</h4>
-                <p id="spot_task"></p>
-            </div>
-            <div id="spot_capacity_box" class="spot-item spot-detail-box">
-                <h4><i class="ph-bold ph-brain"></i> Yêu cầu năng lực</h4>
-                <p id="spot_capacity"></p>
-            </div>
-            <div id="spot_quality_box" class="spot-item spot-detail-box">
-                <h4><i class="ph-bold ph-star"></i> Phẩm chất</h4>
-                <p id="spot_quality"></p>
+            <div class="spot-col spot-col-right">
+                <div class="spot-category-label"><i class="ph-bold ph-text-align-left"></i> Đặc Điểm</div>
+                <div id="spot_desc" class="spot-desc"></div>
             </div>
         </div>
+        <div id="spot_task_box" class="spot-item spot-detail-box">
+            <h4><i class="ph-bold ph-briefcase"></i> Công việc đặc trưng</h4>
+            <p id="spot_task"></p>
+        </div>
+        <div id="spot_capacity_box" class="spot-item spot-detail-box">
+            <h4><i class="ph-bold ph-brain"></i> Yêu cầu năng lực</h4>
+            <p id="spot_capacity"></p>
+        </div>
+        <div id="spot_quality_box" class="spot-item spot-detail-box">
+            <h4><i class="ph-bold ph-star"></i> Phẩm chất</h4>
+            <p id="spot_quality"></p>
+        </div>
     </div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-        import { getDatabase, ref, onValue, onChildAdded, get, update } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, onValue, onChildAdded, get, update } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBOZKWfYWsUqk7hnTqLrpthK6oS_cvAMgQ",
-            authDomain: "hdtnhn-d34d4.firebaseapp.com",
-            databaseURL: "https://hdtnhn-d34d4-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "hdtnhn-d34d4",
-            storageBucket: "hdtnhn-d34d4.firebasestorage.app",
-            messagingSenderId: "972353809708",
-            appId: "1:972353809708:web:68d6fba713321ef19c5089",
-            measurementId: "G-QGDNF7GFPL"
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyBOZKWfYWsUqk7hnTqLrpthK6oS_cvAMgQ",
+    authDomain: "hdtnhn-d34d4.firebaseapp.com",
+    databaseURL: "https://hdtnhn-d34d4-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "hdtnhn-d34d4",
+    storageBucket: "hdtnhn-d34d4.firebasestorage.app",
+    messagingSenderId: "972353809708",
+    appId: "1:972353809708:web:68d6fba713321ef19c5089"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+// ========= GRID DATA =========
+const WORDS_RAW = ["Y tế","Sức khỏe","Giáo dục","Công nghệ thông tin","Kinh doanh","Du lịch","Nghệ thuật"];
+const GRID_16 = [
+    "SỨCKHỎESBAƯÊEECƯ","BTƯPÂQLĂAÂĐEORAP","ĐUSUPLEMQÊYXAVXD","ULHÊCĐVHBÂTKBIKI",
+    "NRÊXĂƯMPBKẾÂPGIY","GSRGIÁODỤCIQĐUNÂ","HĂTEVGÂEDBKÊMSHY","ỆIDIIĐTÊUUTSÂRDS",
+    "TDPƯEDMKLÊSUPEOT","HHYVVĂEYỊĂXHKÊAÂ","UĐQUHĐSNCKSMCÊNC","ẬEƯPPÊƯQHLQKIEHC",
+    "TONÂVĂBCSDXTLRÂK","KRMOÊPATƯBTPVÊVS","HBGLDMAƯƯÊOVDOBS","CÔNGNGHỆTHÔNGTIN"
+];
+const gridData = GRID_16.map(r => r.split(''));
 
-        let currentMode = 'survey', currentStage = 1;
-        
-        function switchBoardMode(mode) {
-            document.querySelectorAll('.board-mode').forEach(m => m.classList.remove('active'));
-            if(mode === 'game') document.getElementById('gameBoard').classList.add('active');
-            if(mode === 'transition') { document.getElementById('transitionBoard').classList.add('active'); playTransitionAnimation(); }
-            if(mode === 'survey') document.getElementById('surveyBoard').classList.add('active');
-        }
+let currentMode = 'survey', currentStage = 1;
+let circles = {}; // id -> {studentName, cells, word, status}
+let revealedWords = new Set();
 
-        onValue(ref(db, 'app_control'), (snapshot) => {
-            const data = snapshot.val() || {};
-            if(data.mode !== currentMode) { currentMode = data.mode || 'survey'; switchBoardMode(currentMode); }
-            if(data.stage !== currentStage) { currentStage = data.stage || 1; document.body.setAttribute('data-stage', currentStage); }
-        });
+// ========= BUILD GRID =========
+function buildGrid() {
+    const el = document.getElementById('wsGrid');
+    el.innerHTML = '';
+    for (let r=0; r<16; r++) for (let c=0; c<16; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.textContent = gridData[r][c];
+        cell.dataset.r = r; cell.dataset.c = c;
+        el.appendChild(cell);
+    }
+}
 
-        const gameWordsRaw = ["Y tế", "Sức khỏe", "Giáo dục", "Công nghệ thông tin", "Kinh doanh", "Du lịch", "Nghệ thuật"];
-        const gameWordsNorm = ["YTẾ", "SỨCKHỎE", "GIÁODỤC", "CÔNGNGHỆTHÔNGTIN", "KINHDOANH", "DULỊCH", "NGHỆTHUẬT"];
-        const wordPlacements = [
-            { w: 1, r: 0, c: 0, dir: 'h', len: 7 }, // SỨCKHỎE
-            { w: 0, r: 2, c: 10, dir: 'v', len: 3 }, // YTẾ
-            { w: 2, r: 5, c: 3, dir: 'h', len: 7 }, // GIÁODỤC
-            { w: 6, r: 4, c: 0, dir: 'v', len: 9 }, // NGHỆTHUẬT
-            { w: 5, r: 6, c: 8, dir: 'v', len: 6 }, // DULỊCH
-            { w: 4, r: 3, c: 14, dir: 'v', len: 9 }, // KINHDOANH
-            { w: 3, r: 15, c: 0, dir: 'h', len: 16 } // CÔNGNGHỆTHÔNGTIN
-        ];
-        
-        const grid16 = [
-            "SỨCKHỎESBAƯÊEECƯ",
-            "BTƯPÂQLĂAÂĐEORAP",
-            "ĐUSUPLEMQÊYXAVXD",
-            "ULHÊCĐVHBÂTKBIKI",
-            "NRÊXĂƯMPBKẾÂPGIY",
-            "GSRGIÁODỤCIQĐUNÂ",
-            "HĂTEVGÂEDBKÊMSHY",
-            "ỆIDIIĐTÊUUTSÂRDS",
-            "TDPƯEDMKLÊSUPEOT",
-            "HHYVVĂEYỊĂXHKÊAÂ",
-            "UĐQUHĐSNCKSMCÊNC",
-            "ẬEƯPPÊƯQHLQKIEHC",
-            "TONÂVĂBCSDXTLRÂK",
-            "KRMOÊPATƯBTPVÊVS",
-            "HBGLDMAƯƯÊOVDOBS",
-            "CÔNGNGHỆTHÔNGTIN"
-        ];
-        const gridData = grid16.map(row => row.split(''));
+function buildWordList() {
+    document.getElementById('wordListItems').innerHTML = WORDS_RAW.map((w,i) =>
+        `<div class="word-list-item ${revealedWords.has(i)?'found':''}" id="wli_${i}">
+            <i class="ph-bold ph-check-circle"></i><span>${w}</span>
+        </div>`
+    ).join('');
+}
 
-        let activeWordIndex = -1, revealedWords = new Set();
-        let activeStudentSelections = {};
+// ========= CANVAS =========
+const canvas = document.getElementById('circlesCanvas');
+const ctx = canvas.getContext('2d');
 
-        function renderWordSearchGrid() {
-            const gridEl = document.getElementById('wsGrid');
-            gridEl.innerHTML = '';
-            for(let r=0; r<16; r++) {
-                for(let c=0; c<16; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.textContent = gridData[r][c];
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-                    gridEl.appendChild(cell);
-                }
-            }
-        }
+function resizeCanvas() {
+    const grid = document.getElementById('wsGrid');
+    const r = grid.getBoundingClientRect();
+    canvas.width = r.width; canvas.height = r.height;
+    canvas.style.width = r.width + 'px'; canvas.style.height = r.height + 'px';
+    redrawAllCircles();
+}
+window.addEventListener('resize', resizeCanvas);
+setTimeout(resizeCanvas, 300);
 
-        function renderWordList() {
-            const listEl = document.getElementById('wordListItems');
-            listEl.innerHTML = gameWordsRaw.map((word, i) => {
-                const isFound = revealedWords.has(i), isActive = activeWordIndex === i && !isFound;
-                return `<div class="word-list-item ${isFound ? 'found' : ''} ${isActive ? 'active-word' : ''}" id="list-item-${i}"><i class="ph-bold ph-check-circle"></i><span>${word}</span></div>`;
-            }).join('');
-        }
+// color palette per student
+const studentColors = {};
+const palette = ['#6366F1','#F59E0B','#EC4899','#06B6D4','#8B5CF6','#EF4444','#14B8A6','#F97316'];
+let colorIdx = 0;
+function colorFor(name) {
+    if (!studentColors[name]) { studentColors[name] = palette[colorIdx++ % palette.length]; }
+    return studentColors[name];
+}
 
-        function highlightWordInGrid(index, animate = false) {
-            const p = wordPlacements.find(x => x.w === index);
-            if(!p) return;
-            const word = gameWordsNorm[index], pill = document.createElement('div');
-            pill.className = animate ? 'highlight-pill' : 'highlight-pill show';
-            const cellSize = 2.5, gap = 0.3, top = p.r * (cellSize + gap), left = p.c * (cellSize + gap);
-            let width, height;
-            if(p.dir === 'h') { width = word.length * cellSize + (word.length - 1) * gap; height = cellSize; }
-            else { width = cellSize; height = word.length * cellSize + (word.length - 1) * gap; }
-            pill.style.top = `calc(${top}vw - 0.15vw)`; pill.style.left = `calc(${left}vw - 0.15vw)`;
-            pill.style.width = `calc(${width}vw + 0.3vw)`; pill.style.height = `calc(${height}vw + 0.3vw)`;
-            const colors = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899'];
-            const color = colors[index % colors.length];
-            pill.style.borderColor = color; pill.style.backgroundColor = color + '66';
-            document.getElementById('highlightsContainer').appendChild(pill);
-            if(animate) requestAnimationFrame(() => requestAnimationFrame(() => pill.classList.add('show')));
-        }
+function drawOneCircle(cells, color, style, tag) {
+    if (!cells || cells.length === 0) return;
+    const grid = document.getElementById('wsGrid');
+    const allCells = grid.querySelectorAll('.grid-cell');
+    const first = allCells[cells[0]], last = allCells[cells[cells.length-1]];
+    if (!first || !last) return;
+    const gr = grid.getBoundingClientRect();
+    const fr = first.getBoundingClientRect(), lr = last.getBoundingClientRect();
+    const sx=fr.left-gr.left+fr.width/2, sy=fr.top-gr.top+fr.height/2;
+    const ex=lr.left-gr.left+lr.width/2, ey=lr.top-gr.top+lr.height/2;
+    const cx=(sx+ex)/2, cy=(sy+ey)/2;
+    const rw = Math.abs(ex-sx)/2+fr.width/2+6, rh = Math.abs(ey-sy)/2+fr.height/2+6;
+    ctx.strokeStyle = color; ctx.lineWidth = 3;
+    ctx.setLineDash(style === 'dashed' ? [6,4] : []);
+    ctx.globalAlpha = style === 'fade' ? 0.3 : 1;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, Math.max(rw,8), Math.max(rh,8), 0, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    return { cx, cy, rw, rh };
+}
 
-        function updateGridHighlights() {
-            document.getElementById('highlightsContainer').innerHTML = '';
-            revealedWords.forEach(idx => highlightWordInGrid(idx, false));
-        }
+function redrawAllCircles() {
+    const gr = document.getElementById('wsGrid');
+    const r = gr.getBoundingClientRect();
+    canvas.width = r.width; canvas.height = r.height;
+    // remove old tags
+    document.querySelectorAll('.name-tag').forEach(t => t.remove());
 
-        renderWordSearchGrid(); renderWordList();
+    Object.entries(circles).forEach(([id, c]) => {
+        if (!c.cells) return;
+        const color = colorFor(c.studentName);
+        const style = c.status === 'wrong' ? 'fade' : c.status === 'pending' ? 'dashed' : 'solid';
+        const pos = drawOneCircle(c.cells, color, style);
+        if (pos) placeTag(id, c, color, pos, r);
+    });
+}
 
-        function normalizeStringForComparison(str) {
-            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/\s+/g, '');
-        }
+function placeTag(id, c, color, pos, gridRect) {
+    const wrapper = document.getElementById('gridWrapper');
+    const existing = document.getElementById('tag_' + id);
+    const tag = existing || document.createElement('div');
+    tag.id = 'tag_' + id;
+    tag.className = `name-tag ${c.status || 'pending'}`;
+    tag.style.color = color;
+    tag.style.borderColor = color;
 
-        onValue(ref(db, 'app_control/game'), (snapshot) => {
-            if(currentMode !== 'game') return;
-            const gameData = snapshot.val() || {};
-            activeWordIndex = gameData.activeWordIndex !== undefined ? gameData.activeWordIndex : -1;
-            const dbRevealed = gameData.revealed || {};
-            revealedWords.clear();
-            Object.keys(dbRevealed).forEach(idx => revealedWords.add(parseInt(idx)));
-            updateGridHighlights();
-            renderWordList();
-            if(activeWordIndex === -1) document.getElementById('winnerAnnouncement').classList.remove('show');
-        });
+    const icon = c.status === 'correct' ? '✅' : c.status === 'wrong' ? '❌' : '⏳';
+    tag.innerHTML = `${icon} <span>${c.studentName}</span>`;
 
-        // Listen for student selections
-        onValue(ref(db, 'student_selections'), (snapshot) => {
-            if(currentMode !== 'game') return;
-            
-            // Clear old selections
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                cell.classList.remove('student-selecting');
-            });
-            
-            const selections = snapshot.val() || {};
-            Object.values(selections).forEach(sel => {
-                if(sel.cells && Array.isArray(sel.cells)) {
-                    sel.cells.forEach(cellIdx => {
-                        const cells = document.querySelectorAll('.grid-cell');
-                        if(cells[cellIdx]) {
-                            cells[cellIdx].classList.add('student-selecting');
-                        }
-                    });
-                }
-            });
-        });
+    if (!existing) wrapper.appendChild(tag);
 
-        onValue(ref(db, 'game_guesses'), (snapshot) => {
-            if(currentMode !== 'game') return;
-            snapshot.forEach(wordSnap => {
-                const wordIdx = parseInt(wordSnap.key);
-                if(revealedWords.has(wordIdx)) return;
-                const guesses = wordSnap.val();
-                const correctWordNorm = normalizeStringForComparison(gameWordsRaw[wordIdx]);
-                let earliestWinner = null, earliestTime = Infinity;
-                Object.values(guesses).forEach(g => {
-                    if(normalizeStringForComparison(g.guess) === correctWordNorm && g.timestamp < earliestTime) {
-                        earliestTime = g.timestamp; earliestWinner = g.studentName;
-                    }
-                });
-                if(earliestWinner) {
-                    const winnerEl = document.getElementById('winnerAnnouncement');
-                    winnerEl.innerHTML = `🎉 TUYỆT VỜI! <span>${earliestWinner}</span> đã tìm ra từ khóa: ${gameWordsRaw[wordIdx]}!`;
-                    winnerEl.classList.add('show');
-                    setTimeout(() => winnerEl.classList.remove('show'), 4000);
-                    const updates = { isRevealed: true }; updates[`revealed/${wordIdx}`] = true;
-                    update(ref(db, 'app_control/game'), updates);
-                }
-            });
-        });
+    // position: top-right of the ellipse
+    // pos is relative to grid inner area; wrapper has 1vw padding
+    const vw = window.innerWidth / 100;
+    const padPx = 1 * vw;
+    const tagX = padPx + pos.cx + pos.rw;
+    const tagY = padPx + pos.cy - pos.rh - 20;
+    tag.style.left = tagX + 'px';
+    tag.style.top = Math.max(4, tagY) + 'px';
+}
 
-        function playTransitionAnimation() {
-            const container = document.getElementById('floatingWords');
-            container.innerHTML = '';
-            const msg = document.getElementById('transitionMessage');
-            msg.style.opacity = '0'; msg.style.transform = 'scale(0.8)';
-            gameWordsRaw.forEach((data, i) => {
-                const el = document.createElement('div');
-                el.className = 'float-word'; el.textContent = data;
-                el.style.left = '50%'; el.style.top = '50%';
-                el.style.transform = 'translate(-50%, -50%) translateZ(-1000px) scale(0)';
-                const colors = ['#38BDF8', '#34D399', '#FBBF24', '#F472B6', '#A78BFA'];
-                el.style.color = colors[i % colors.length];
-                container.appendChild(el);
-                setTimeout(() => {
-                    const angle = (i / gameWordsRaw.length) * Math.PI * 2, radius = 30 + Math.random() * 15;
-                    const x = Math.cos(angle) * radius, y = Math.sin(angle) * radius;
-                    el.style.opacity = '1'; el.style.left = `calc(50% + ${x}vw)`; el.style.top = `calc(50% + ${y}vh)`;
-                    el.style.transform = `translate(-50%, -50%) translateZ(0) scale(1)`;
-                }, i * 400);
-                setTimeout(() => {
-                    el.style.opacity = '0'; el.style.transform = `translate(-50%, -50%) translateZ(500px) scale(2)`;
-                    el.style.filter = 'blur(10px)';
-                }, gameWordsRaw.length * 400 + 1500 + (Math.random() * 500));
-            });
-            setTimeout(() => { msg.style.opacity = '1'; msg.style.transform = 'scale(1)'; }, gameWordsRaw.length * 400 + 2500);
-            setTimeout(() => { msg.style.opacity = '0'; msg.style.transform = 'scale(1.1)'; }, gameWordsRaw.length * 400 + 7000);
-            setTimeout(() => { update(ref(db, 'app_control'), { mode: 'survey' }); }, gameWordsRaw.length * 400 + 8000);
-        }
+// ========= FIREBASE LISTENERS =========
+onValue(ref(db, 'circles'), snap => {
+    if (currentMode !== 'game') return;
+    circles = snap.val() || {};
+    redrawAllCircles();
+});
 
-        const overlay = document.getElementById('spotlightOverlay');
-        const surveyBoardContainer = document.querySelector('.board-container');
-        const surveyHeader = document.querySelector('#surveyBoard .header');
+onValue(ref(db, 'app_control'), snap => {
+    const d = snap.val() || {};
+    if (d.mode !== currentMode) {
+        currentMode = d.mode || 'survey';
+        switchMode(currentMode);
+    }
+    if (d.stage !== currentStage) {
+        currentStage = d.stage || 1;
+        document.body.setAttribute('data-stage', currentStage);
+    }
+    if (d.game) {
+        revealedWords.clear();
+        Object.keys(d.game.revealed || {}).forEach(k => revealedWords.add(parseInt(k)));
+        buildWordList();
+    }
+});
 
-        onValue(ref(db, 'app_control/spotlight'), (snapshot) => {
-            if(currentMode !== 'survey') return;
-            const data = snapshot.val();
-            if (data && data.active) {
-                document.querySelectorAll('.spot-item').forEach(el => el.style.opacity = '');
-                document.getElementById('spot_name').innerHTML = `<i class="ph-bold ph-user"></i> ${data.studentName}`;
-                document.getElementById('spot_career').textContent = data.careerName;
-                document.getElementById('spot_desc').textContent = data.desc;
-                if(data.task) document.getElementById('spot_task').textContent = data.task;
-                if(data.capacity) document.getElementById('spot_capacity').textContent = data.capacity;
-                if(data.quality) document.getElementById('spot_quality').textContent = data.quality;
-                if (data.isPresenter) {
-                    surveyBoardContainer.style.display = 'none'; surveyHeader.style.display = 'none';
-                    overlay.style.background = 'rgba(15, 23, 42, 0.95)'; overlay.style.backdropFilter = 'blur(20px)';
-                } else {
-                    surveyBoardContainer.style.display = 'block'; surveyHeader.style.display = 'block';
-                    overlay.style.background = 'rgba(0, 0, 0, 0.7)'; overlay.style.backdropFilter = 'blur(12px)';
-                }
-                overlay.classList.add('active');
-            } else if(!window.isFlying) {
-                overlay.classList.remove('active'); surveyBoardContainer.style.display = 'block'; surveyHeader.style.display = 'block';
-            }
-        });
+function switchMode(mode) {
+    document.querySelectorAll('.board-mode').forEach(m => m.classList.remove('active'));
+    if (mode === 'game') {
+        document.getElementById('gameBoard').classList.add('active');
+        setTimeout(() => { resizeCanvas(); redrawAllCircles(); }, 400);
+    }
+    if (mode === 'transition') { document.getElementById('transitionBoard').classList.add('active'); playTransition(); }
+    if (mode === 'survey') document.getElementById('surveyBoard').classList.add('active');
+}
 
-        const renderedIds = new Set();
-        get(ref(db, 'approved_list')).then((snapshot) => {
-            if(snapshot.exists()) { snapshot.forEach((child) => { renderRow(child.val(), child.key, false); renderedIds.add(child.key); }); }
-            onChildAdded(ref(db, 'approved_list'), (dataSnapshot) => {
-                const id = dataSnapshot.key; if(renderedIds.has(id)) return; renderedIds.add(id);
-                const data = dataSnapshot.val();
-                if (overlay.classList.contains('active') && currentMode === 'survey') {
-                    window.isFlying = true; const newRow = renderRow(data, id, true);
-                    setTimeout(() => { flyElementsToRow(newRow); }, 50);
-                } else renderRow(data, id, false);
-            });
-        });
+// ========= TRANSITION =========
+function playTransition() {
+    const container = document.getElementById('floatingWords');
+    container.innerHTML = '';
+    const msg = document.getElementById('transitionMessage');
+    msg.style.opacity = '0'; msg.style.transform = 'scale(0.8)';
+    const colors = ['#38BDF8','#34D399','#FBBF24','#F472B6','#A78BFA'];
+    WORDS_RAW.forEach((w, i) => {
+        const el = document.createElement('div');
+        el.className = 'float-word'; el.textContent = w; el.style.color = colors[i%colors.length];
+        el.style.left='50%'; el.style.top='50%'; el.style.transform='translate(-50%,-50%) translateZ(-1000px) scale(0)';
+        container.appendChild(el);
+        setTimeout(() => {
+            const a=(i/WORDS_RAW.length)*Math.PI*2, rad=28+Math.random()*12;
+            el.style.opacity='1'; el.style.left=`calc(50% + ${Math.cos(a)*rad}vw)`; el.style.top=`calc(50% + ${Math.sin(a)*rad}vh)`;
+            el.style.transform='translate(-50%,-50%) translateZ(0) scale(1)';
+        }, i*400);
+        setTimeout(() => { el.style.opacity='0'; el.style.transform='translate(-50%,-50%) translateZ(500px) scale(2)'; el.style.filter='blur(10px)'; }, WORDS_RAW.length*400+1500+Math.random()*400);
+    });
+    setTimeout(() => { msg.style.opacity='1'; msg.style.transform='scale(1)'; }, WORDS_RAW.length*400+2500);
+    setTimeout(() => { msg.style.opacity='0'; }, WORDS_RAW.length*400+7000);
+    setTimeout(() => { update(ref(db,'app_control'),{mode:'survey'}); }, WORDS_RAW.length*400+8000);
+}
 
-        function renderRow(data, id, hidden = false) {
-            const tbody = document.getElementById('tableBody');
-            const tr = document.createElement('tr'); tr.id = `row_${id}`; if(hidden) tr.style.opacity = '0';
-            tr.innerHTML = `<td><div class="student-name-badge cell-group">${data.studentName || 'Ẩn danh'}</div></td><td><div class="career-name cell-career">${data.careerName}</div></td><td><div class="cell-desc">${data.desc}</div></td><td class="stage2-col"><div class="cell-task">${data.task || ''}</div></td><td class="stage2-col"><div class="cell-capacity">${data.capacity || ''}</div></td><td class="stage2-col"><div class="cell-quality">${data.quality || ''}</div></td>`;
-            tbody.insertBefore(tr, tbody.firstChild); return tr;
-        }
+// ========= SURVEY =========
+const overlay = document.getElementById('spotlightOverlay');
 
-        function flyElementsToRow(tr) {
-            const mappings = [{ src: document.getElementById('spot_name'), dest: tr.querySelector('.cell-group') }, { src: document.getElementById('spot_career'), dest: tr.querySelector('.cell-career') }];
-            if (currentStage === 1) mappings.push({ src: document.getElementById('spot_desc'), dest: tr.querySelector('.cell-desc') });
-            if (currentStage === 2) { mappings.push({ src: document.getElementById('spot_task'), dest: tr.querySelector('.cell-task') }, { src: document.getElementById('spot_capacity'), dest: tr.querySelector('.cell-capacity') }, { src: document.getElementById('spot_quality'), dest: tr.querySelector('.cell-quality') }); }
-            const clones = [];
-            mappings.forEach(m => {
-                if(!m.src || !m.dest) return;
-                const srcRect = m.src.getBoundingClientRect(), destRect = m.dest.getBoundingClientRect();
-                const destStyle = window.getComputedStyle(m.dest), srcStyle = window.getComputedStyle(m.src);
-                const clone = m.src.cloneNode(true);
-                clone.className = 'flying-clone'; clone.style.left = srcRect.left + 'px'; clone.style.top = srcRect.top + 'px';
-                clone.style.width = srcRect.width + 'px'; clone.style.height = srcRect.height + 'px';
-                clone.style.fontSize = srcStyle.fontSize; clone.style.color = srcStyle.color;
-                clone.style.fontWeight = srcStyle.fontWeight; clone.style.textAlign = srcStyle.textAlign;
-                clone.style.lineHeight = srcStyle.lineHeight; clone.style.margin = '0';
-                clone.style.background = 'transparent'; clone.style.border = 'none'; clone.style.boxShadow = 'none'; clone.style.padding = '0';
-                document.body.appendChild(clone); clones.push({ clone, destRect, destStyle }); m.src.style.opacity = '0';
-            });
-            const phase1Container = document.querySelector('.spot-phase1-container'); if(phase1Container) phase1Container.style.opacity = '0';
-            document.body.offsetHeight;
-            clones.forEach(({ clone, destRect, destStyle }) => {
-                clone.style.left = destRect.left + 'px'; clone.style.top = destRect.top + 'px';
-                clone.style.width = destRect.width + 'px'; clone.style.height = destRect.height + 'px';
-                clone.style.fontSize = destStyle.fontSize; clone.style.color = destStyle.color;
-                clone.style.fontWeight = destStyle.fontWeight; clone.style.lineHeight = destStyle.lineHeight; clone.style.textAlign = 'left';
-            });
-            overlay.style.background = 'transparent'; overlay.style.backdropFilter = 'none';
-            setTimeout(() => {
-                tr.style.transition = 'opacity 0.4s ease'; tr.style.opacity = '1';
-                clones.forEach(c => c.clone.remove()); overlay.classList.remove('active');
-                overlay.style.background = ''; overlay.style.backdropFilter = '';
-                mappings.forEach(m => m.src.style.opacity = ''); if(phase1Container) phase1Container.style.opacity = '';
-                window.isFlying = false; update(ref(db, 'app_control/spotlight'), { active: false });
-            }, 850);
-        }
-    </script>
+onValue(ref(db,'app_control/spotlight'), snap => {
+    if (currentMode !== 'survey') return;
+    const d = snap.val();
+    if (d && d.active) {
+        document.getElementById('spot_name').innerHTML = `<i class="ph-bold ph-user"></i> ${d.studentName}`;
+        document.getElementById('spot_career').textContent = d.careerName;
+        document.getElementById('spot_desc').textContent = d.desc;
+        if (d.task) document.getElementById('spot_task').textContent = d.task;
+        if (d.capacity) document.getElementById('spot_capacity').textContent = d.capacity;
+        if (d.quality) document.getElementById('spot_quality').textContent = d.quality;
+        overlay.classList.add('active');
+    } else if (!window.isFlying) {
+        overlay.classList.remove('active');
+    }
+});
+
+const renderedIds = new Set();
+get(ref(db,'approved_list')).then(snap => {
+    if (snap.exists()) snap.forEach(c => { renderRow(c.val(), c.key, false); renderedIds.add(c.key); });
+    onChildAdded(ref(db,'approved_list'), snap => {
+        if (renderedIds.has(snap.key)) return;
+        renderedIds.add(snap.key);
+        const d = snap.val();
+        if (overlay.classList.contains('active') && currentMode === 'survey') {
+            window.isFlying = true;
+            const row = renderRow(d, snap.key, true);
+            setTimeout(() => flyToRow(row), 50);
+        } else renderRow(d, snap.key, false);
+    });
+});
+
+function renderRow(data, id, hidden) {
+    const tbody = document.getElementById('tableBody');
+    const tr = document.createElement('tr'); tr.id = `row_${id}`;
+    if (hidden) tr.style.opacity = '0';
+    tr.innerHTML = `<td><div class="student-name-badge cell-group">${data.studentName||'Ẩn danh'}</div></td>
+        <td><div class="career-name cell-career">${data.careerName}</div></td>
+        <td><div class="cell-desc">${data.desc}</div></td>
+        <td class="stage2-col"><div class="cell-task">${data.task||''}</div></td>
+        <td class="stage2-col"><div class="cell-capacity">${data.capacity||''}</div></td>
+        <td class="stage2-col"><div class="cell-quality">${data.quality||''}</div></td>`;
+    tbody.insertBefore(tr, tbody.firstChild);
+    return tr;
+}
+
+function flyToRow(tr) {
+    const maps = [
+        {src: document.getElementById('spot_name'), dest: tr.querySelector('.cell-group')},
+        {src: document.getElementById('spot_career'), dest: tr.querySelector('.cell-career')}
+    ];
+    if (currentStage===1) maps.push({src: document.getElementById('spot_desc'), dest: tr.querySelector('.cell-desc')});
+    if (currentStage===2) {
+        maps.push(
+            {src: document.getElementById('spot_task'), dest: tr.querySelector('.cell-task')},
+            {src: document.getElementById('spot_capacity'), dest: tr.querySelector('.cell-capacity')},
+            {src: document.getElementById('spot_quality'), dest: tr.querySelector('.cell-quality')}
+        );
+    }
+    const clones = [];
+    const phase = document.querySelector('.spot-phase1-container');
+    maps.forEach(m => {
+        if (!m.src || !m.dest) return;
+        const sr = m.src.getBoundingClientRect(), dr = m.dest.getBoundingClientRect();
+        const ss = window.getComputedStyle(m.src), ds = window.getComputedStyle(m.dest);
+        const cl = m.src.cloneNode(true);
+        cl.className = 'flying-clone';
+        cl.style.cssText = `left:${sr.left}px;top:${sr.top}px;width:${sr.width}px;height:${sr.height}px;font-size:${ss.fontSize};color:${ss.color};font-weight:${ss.fontWeight};background:transparent;border:none;box-shadow:none;padding:0;`;
+        document.body.appendChild(cl); clones.push({cl, dr, ds}); m.src.style.opacity='0';
+    });
+    if (phase) phase.style.opacity = '0';
+    document.body.offsetHeight;
+    clones.forEach(({cl,dr,ds}) => { cl.style.left=dr.left+'px'; cl.style.top=dr.top+'px'; cl.style.width=dr.width+'px'; cl.style.height=dr.height+'px'; cl.style.fontSize=ds.fontSize; cl.style.color=ds.color; });
+    overlay.style.background='transparent'; overlay.style.backdropFilter='none';
+    setTimeout(() => {
+        tr.style.transition='opacity 0.4s'; tr.style.opacity='1';
+        clones.forEach(c => c.cl.remove());
+        overlay.classList.remove('active'); overlay.style.background=''; overlay.style.backdropFilter='';
+        maps.forEach(m => m.src.style.opacity='');
+        if (phase) phase.style.opacity='';
+        window.isFlying=false;
+        update(ref(db,'app_control/spotlight'),{active:false});
+    }, 850);
+}
+
+// ========= INIT =========
+buildGrid(); buildWordList();
+setTimeout(resizeCanvas, 500);
+</script>
 </body>
 </html>

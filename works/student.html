@@ -17,10 +17,9 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
+
         body {
-            background: #f5f7fa;
-            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -30,64 +29,62 @@
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255,255,255,0.9);
             backdrop-filter: blur(12px);
             padding: 12px 20px;
             text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
             position: sticky; top: 0; z-index: 100;
-            position: relative;
         }
+        .header h1 { font-size: 1rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .header-name { font-size: 0.75rem; color: #6B7280; margin-top: 2px; }
 
-        .header h1 { font-size: 1.1rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
-
-        .container { flex: 1; padding: 16px; display: flex; flex-direction: column; align-items: center; }
+        .container { flex: 1; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 
         .card {
             background: var(--card-bg);
             border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
             width: 100%;
             max-width: 500px;
-            animation: cardEntrance 0.5s ease;
         }
 
         @keyframes cardEntrance { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .question-text { font-size: 1rem; font-weight: 600; margin-bottom: 16px; text-align: center; }
-
         input[type="text"], textarea {
-            width: 100%; padding: 14px 18px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; margin-bottom: 20px;
+            width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px;
+            font-size: 1rem; background: #FAFAFA; margin-bottom: 16px;
         }
-        input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--primary); background: #FFFFFF; }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); background: #fff; }
 
         .btn-submit {
-            width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: transform 0.2s;
+            width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem;
+            font-weight: 700; background: var(--primary); color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: transform 0.15s;
         }
         .btn-submit:active { transform: scale(0.98); }
 
-        /* App Modes */
         .app-mode { display: none; width: 100%; }
         .app-mode.active { display: flex; flex-direction: column; align-items: center; }
         .view-section { display: none; width: 100%; }
         .view-section.active { display: block; }
 
-        .waiting-msg { text-align: center; color: #6B7280; }
-        .waiting-msg i { font-size: 3.5rem; color: var(--border); margin-bottom: 12px; display: block; }
-
-        /* === WORD SEARCH GRID STYLES === */
+        /* ========= GAME ========= */
         .game-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
+            background: var(--card-bg); border-radius: 20px; padding: 14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08); width: 100%; max-width: 500px;
         }
 
-        .game-grid-container {
+        .game-instructions {
+            background: #FEF3C7; border: 2px solid #FCD34D; border-radius: 12px;
+            padding: 10px 14px; margin-bottom: 12px; font-size: 0.82rem; line-height: 1.6;
+        }
+        .game-instructions strong { color: #B45309; display: block; margin-bottom: 2px; }
+
+        .grid-wrap {
+            position: relative;
             user-select: none;
             touch-action: none;
             background: white;
@@ -99,573 +96,445 @@
             gap: 1px;
             margin: 0 auto;
             width: 100%;
-            max-width: 400px;
         }
 
-        .grid-cell {
+        .gc {
             aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            font-weight: 800;
-            color: #475569;
-            background: #F8FAFC;
-            border-radius: 2px;
-            transition: all 0.15s ease;
-            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; font-weight: 800; color: #475569;
+            background: #F8FAFC; border-radius: 2px;
+            transition: background 0.1s, transform 0.1s;
+            position: relative; z-index: 1;
         }
+        .gc.selecting { background: #6366F1; color: white; transform: scale(1.12); z-index: 2; box-shadow: 0 0 6px rgba(99,102,241,0.5); }
+        .gc.found-mine { background: #D1FAE5; color: #065F46; font-weight: 900; }
+        .gc.revealed { background: #ECFDF5; color: #059669; }
 
-        .grid-cell.selected {
-            background: #6366F1;
-            color: white;
-            transform: scale(1.15);
-            z-index: 2;
-            box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
-        }
-
-        .grid-cell.correct {
-            background: #10B981;
-            color: white;
-            animation: pulse 0.5s ease;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+        #drawCanvas {
+            position: absolute; top: 4px; left: 4px;
+            pointer-events: none; z-index: 5;
+            border-radius: 10px;
         }
 
         .selection-preview {
-            margin: 16px 0;
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--primary);
-            min-height: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-align: center;
+            margin: 10px 0 4px;
+            font-size: 1.3rem; font-weight: 800; color: var(--primary);
+            min-height: 1.8rem; text-transform: uppercase; letter-spacing: 2px; text-align: center;
         }
 
-        .game-status-bar {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
-            border-radius: 12px;
-            margin-bottom: 16px;
-            text-align: center;
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 0.95rem;
-            border: 2px solid #C7D2FE;
-        }
-
-        .game-controls {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
+        .game-controls { display: flex; gap: 8px; margin-top: 8px; }
         .btn-clear {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            background: white;
-            color: var(--text-main);
-            cursor: pointer;
+            flex: 1; padding: 11px; border: 2px solid var(--border); border-radius: 12px;
+            font-size: 0.88rem; font-weight: 600; background: white; color: var(--text-main); cursor: pointer;
         }
+        .btn-send {
+            flex: 2; padding: 11px; border: none; border-radius: 12px;
+            font-size: 0.88rem; font-weight: 700; background: var(--secondary); color: white; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        .btn-submit-word {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            background: var(--secondary);
-            color: white;
-            cursor: pointer;
-        }
+        #gameFeedback { text-align: center; margin-top: 10px; font-weight: 700; min-height: 1.4rem; font-size: 0.9rem; }
 
-        .btn-submit-word:disabled {
-            background: var(--border);
-            cursor: not-allowed;
+        .pending-list { margin-top: 14px; }
+        .pending-list h4 { font-size: 0.8rem; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .pending-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px; border-radius: 10px; margin-bottom: 6px;
+            font-size: 0.85rem; font-weight: 700;
+            border: 2px dashed #CBD5E1; background: #F8FAFC; color: #6B7280;
+            transition: all 0.4s ease;
         }
+        .pending-item.correct { background: #D1FAE5; border-color: #10B981; border-style: solid; color: #065F46; }
+        .pending-item.wrong { background: #FEE2E2; border-color: #EF4444; border-style: solid; color: #991B1B; }
+        .pending-item .status-icon { font-size: 1.1rem; }
 
-        #gameFeedback {
-            text-align: center;
-            margin-top: 12px;
-            font-weight: 700;
-            min-height: 1.5rem;
-            font-size: 0.95rem;
-        }
+        /* Survey */
+        .question-text { font-size: 0.95rem; font-weight: 600; margin-bottom: 10px; }
+        .waiting-msg { text-align: center; color: #6B7280; padding: 20px 0; }
+        .waiting-msg i { font-size: 3rem; color: var(--border); margin-bottom: 10px; display: block; }
+        .career-title { color: var(--primary); font-size: 1rem; font-weight: 700; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+        .label-wi { display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 6px; font-size: 0.88rem; }
+        .label-wi i { color: var(--secondary); }
+        .dynamic-block { margin-bottom: 20px; }
 
-        .grid-lock {
-            position: relative;
-        }
-        .grid-lock.locked::after {
-            content: "ĐÃ XONG!";
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(2px);
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.2rem;
-            color: #10B981;
-            border-radius: 12px;
-        }
-
+        /* Trans */
         .trans-card { text-align: center; padding: 40px 20px; }
-        .career-title { color: var(--primary); font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        .label-with-icon { display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
-        .label-with-icon i { color: var(--secondary); }
-        .dynamic-block { margin-bottom: 24px; }
-
-        /* Instructions */
-        .game-instructions {
-            background: #FEF3C7;
-            border: 2px solid #FCD34D;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 16px;
-            font-size: 0.85rem;
-            line-height: 1.6;
-        }
-        .game-instructions strong {
-            color: #B45309;
-            display: block;
-            margin-bottom: 4px;
-        }
-
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1><i class="ph-fill ph-rocket-launch"></i> KHÁM PHÁ NGHỀ NGHIỆP</h1>
-        <button onclick="clearHistory()" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: #FEE2E2; color: #EF4444; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-            <i class="ph-bold ph-trash"></i> Xóa lịch sử
-        </button>
+
+<div class="header">
+    <h1><i class="ph-fill ph-rocket-launch"></i> KHÁM PHÁ NGHỀ NGHIỆP</h1>
+    <div class="header-name" id="headerName"></div>
+</div>
+
+<div class="container">
+
+    <!-- NAME ENTRY -->
+    <div id="nameEntryMode" class="app-mode active">
+        <div class="card" style="animation: cardEntrance 0.4s ease;">
+            <div class="question-text" style="text-align:center; font-size:1.1rem; margin-bottom:16px;">Nhập tên của bạn để bắt đầu 👋</div>
+            <input type="text" id="globalName" placeholder="Tên của bạn..." />
+            <button class="btn-submit" onclick="saveName()">Bắt đầu <i class="ph-bold ph-arrow-right"></i></button>
+        </div>
     </div>
 
-    <div class="container">
+    <!-- GAME MODE -->
+    <div id="gameMode" class="app-mode">
+        <div class="game-card">
+            <div class="game-instructions">
+                <strong>🎯 Cách chơi:</strong>
+                Vuốt ngón tay để khoanh từ theo hàng ngang hoặc cột dọc. Nhấn <b>Gửi lên bảng</b> — giáo viên sẽ xác nhận!
+            </div>
 
-        <!-- NAME ENTRY -->
-        <div id="nameEntryMode" class="app-mode">
+            <div class="grid-wrap" id="wsGrid">
+                <canvas id="drawCanvas"></canvas>
+            </div>
+
+            <div class="selection-preview" id="selPreview"></div>
+
+            <div class="game-controls">
+                <button class="btn-clear" onclick="clearSel()"><i class="ph-bold ph-x"></i> Xóa</button>
+                <button class="btn-send" id="sendBtn" disabled onclick="sendCircle()">
+                    <i class="ph-bold ph-paper-plane-right"></i> Gửi lên bảng
+                </button>
+            </div>
+
+            <div id="gameFeedback"></div>
+
+            <div class="pending-list" id="pendingList"></div>
+        </div>
+    </div>
+
+    <!-- TRANSITION MODE -->
+    <div id="transitionMode" class="app-mode">
+        <div class="card trans-card">
+            <i class="ph-fill ph-stars" style="font-size:3.5rem; color:#F59E0B; margin-bottom:12px; display:block;"></i>
+            <h2>Tuyệt vời!</h2>
+            <p style="margin-top:8px; color:#6B7280;">Hãy chú ý lên màn hình chính nhé!</p>
+        </div>
+    </div>
+
+    <!-- SURVEY MODE -->
+    <div id="surveyMode" class="app-mode">
+        <div id="stage1View" class="view-section active">
             <div class="card">
-                <div class="question-text">Nhập tên của bạn để bắt đầu:</div>
-                <input type="text" id="globalName" placeholder="Tên của bạn..." />
-                <button class="btn-submit" onclick="saveName()">Bắt đầu <i class="ph-bold ph-arrow-right"></i></button>
+                <div class="question-text">1. Nhập một nhóm nghề bạn biết:</div>
+                <input type="text" id="s1_career" placeholder="VD: Công nghệ thông tin..." />
+                <div class="question-text">2. Đặc điểm của nhóm nghề này:</div>
+                <textarea id="s1_desc" placeholder="Mô tả ngắn gọn..." style="min-height:80px; margin-bottom:16px;"></textarea>
+                <button class="btn-submit" onclick="submitStage1()">Gửi <i class="ph-bold ph-paper-plane-right"></i></button>
             </div>
         </div>
-
-        <!-- GAME MODE -->
-        <div id="gameMode" class="app-mode">
-            <div id="gameWaitingView" class="view-section">
-                <div class="card waiting-msg">
-                    <i class="ph-light ph-game-controller"></i>
-                    <h2>Sẵn sàng!</h2>
-                    <p>Nhìn lên bảng và chờ người thuyết trình bắt đầu trò chơi.</p>
-                </div>
-            </div>
-
-            <div id="gameActiveView" class="view-section active">
-                <div class="game-card">
-                    <div class="game-status-bar">
-                        <i class="ph-bold ph-lightning"></i> Tìm các từ khóa nghề nghiệp
-                    </div>
-
-                    <div class="game-instructions">
-                        <strong>Cách chơi:</strong>
-                        Vuốt ngón tay qua các ô chữ để tạo từ. Vuốt theo hàng ngang hoặc cột dọc. Nhấn "Gửi" khi hoàn tất!
-                    </div>
-                    
-                    <div class="grid-lock" id="gridLockLayer">
-                        <div class="game-grid-container" id="wsGrid"></div>
-                    </div>
-
-                    <div class="selection-preview" id="selectionPreview"></div>
-                    
-                    <div class="game-controls">
-                        <button class="btn-clear" onclick="clearSelection()">
-                            <i class="ph-bold ph-x"></i> Xóa
-                        </button>
-                        <button class="btn-submit-word" id="submitWordBtn" onclick="submitWord()" disabled>
-                            <i class="ph-bold ph-paper-plane-right"></i> Gửi
-                        </button>
-                    </div>
-
-                    <p id="gameFeedback"></p>
-                </div>
+        <div id="waitingView" class="view-section">
+            <div class="card waiting-msg">
+                <i class="ph-light ph-hourglass-high"></i>
+                <h2>Đã gửi thành công!</h2>
+                <p>Vui lòng nhìn lên bảng và đợi phần tiếp theo.</p>
             </div>
         </div>
-
-        <!-- TRANSITION MODE -->
-        <div id="transitionMode" class="app-mode">
-            <div class="card trans-card">
-                <i class="ph-fill ph-stars" style="font-size: 4rem; color: #F59E0B; margin-bottom: 12px; display:block;"></i>
-                <h2>Tuyệt vời!</h2>
-                <p>Hãy chú ý lên màn hình chính nhé!</p>
+        <div id="stage2View" class="view-section">
+            <div class="card">
+                <div id="stage2FormContainer"></div>
+                <button class="btn-submit" onclick="submitStage2()" style="background: var(--secondary);">
+                    Gửi câu trả lời <i class="ph-bold ph-check-circle"></i>
+                </button>
             </div>
         </div>
-
-        <!-- SURVEY MODE -->
-        <div id="surveyMode" class="app-mode">
-            <div id="stage1View" class="view-section active">
-                <div class="card">
-                    <div class="question-text">1. Nhập một nhóm nghề bạn biết:</div>
-                    <input type="text" id="s1_career" placeholder="VD: Công nghệ thông tin..." />
-                    <div class="question-text">2. Đặc điểm của nhóm nghề này:</div>
-                    <textarea id="s1_desc" placeholder="Mô tả ngắn gọn..." style="width:100%; min-height:80px; padding:12px; border-radius:12px; border:2px solid var(--border); margin-bottom:20px;"></textarea>
-                    <button class="btn-submit" onclick="submitStage1()">Gửi <i class="ph-bold ph-paper-plane-right"></i></button>
-                </div>
-            </div>
-
-            <div id="waitingView" class="view-section">
-                <div class="card waiting-msg">
-                    <i class="ph-light ph-hourglass-high"></i>
-                    <h2>Đã gửi thành công!</h2>
-                    <p>Vui lòng nhìn lên bảng và đợi người thuyết trình mở phần tiếp theo.</p>
-                </div>
-            </div>
-
-            <div id="stage2View" class="view-section">
-                <div class="card">
-                    <div id="stage2FormContainer"></div>
-                    <button class="btn-submit" onclick="submitStage2()" style="background: var(--secondary);">
-                        Gửi câu trả lời <i class="ph-bold ph-check-circle"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-        import { getDatabase, ref, push, update, onValue, get, serverTimestamp, set, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+</div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBOZKWfYWsUqk7hnTqLrpthK6oS_cvAMgQ",
-            authDomain: "hdtnhn-d34d4.firebaseapp.com",
-            databaseURL: "https://hdtnhn-d34d4-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "hdtnhn-d34d4",
-            storageBucket: "hdtnhn-d34d4.firebasestorage.app",
-            messagingSenderId: "972353809708",
-            appId: "1:972353809708:web:68d6fba713321ef19c5089",
-            measurementId: "G-QGDNF7GFPL"
-        };
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, push, update, onValue, get, serverTimestamp, set, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+const firebaseConfig = {
+    apiKey: "AIzaSyBOZKWfYWsUqk7hnTqLrpthK6oS_cvAMgQ",
+    authDomain: "hdtnhn-d34d4.firebaseapp.com",
+    databaseURL: "https://hdtnhn-d34d4-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "hdtnhn-d34d4",
+    storageBucket: "hdtnhn-d34d4.firebasestorage.app",
+    messagingSenderId: "972353809708",
+    appId: "1:972353809708:web:68d6fba713321ef19c5089"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-        // Clear history function - removes all stored data
-        window.clearHistory = function() {
-            if(confirm('Xóa toàn bộ lịch sử hoạt động? Bạn sẽ phải nhập tên lại.')) {
-                localStorage.clear();
-                if(mySelectionId) {
-                    remove(ref(db, `student_selections/${mySelectionId}`));
-                }
-                location.reload();
-            }
-        };
+// ========= DATA =========
+const GRID_STR = "SỨCKHỎESBAƯÊEECƯBTƯPÂQLĂAÂĐEORAPĐUSUPLEMQÊYXAVXDULHÊCĐVHBÂTKBIKINRÊXĂƯMPBKẾÂPGIYGSRGIÁODỤCIQĐUNÂHĂTEVGÂEDBKÊMSHYỆIDIIĐTÊUUTSÂRDSTDPƯEDMKLÊSUPEOTHHYVVĂEYỊĂXHKÊAÂUĐQUHĐSNCKSMCÊNCẬEƯPPÊƯQHLQKIEHCTONÂVĂBCSDXTLRÂKKRMOÊPATƯBTPVÊVSHBGLDMAƯƯÊOVDOBSCÔNGNGHỆTHÔNGTIN";
+const GRID = (GRID_STR + "ABCDEFGHIJKLMNOPQRSTUVWXYZ".repeat(10)).substring(0,256).split('');
 
-        const gameWordsRaw = ["Y tế", "Sức khỏe", "Giáo dục", "Công nghệ thông tin", "Kinh doanh", "Du lịch", "Nghệ thuật"];
-        const gameWordsNorm = ["YTẾ", "SỨCKHỎE", "GIÁODỤC", "CÔNGNGHỆTHÔNGTIN", "KINHDOANH", "DULỊCH", "NGHỆTHUẬT"];
-        const fixedGridStr = "SỨCKHỎESBAƯÊEECƯBTƯPÂQLĂAÂĐEORAPĐUSUPLEMQÊYXAVXDULHÊCĐVHBÂTKBIKINRÊXĂƯMPBKẾÂPGIYGSRGIÁODỤCIQĐUNÂHĂTEVGÂEDBKÊMSHYỆIDIIĐTÊUUTSÂRDSTDPƯEDMKLÊSUPEOTHHYVVĂEYỊĂXHKÊAÂUĐQUHĐSNCKSMCÊNCẬEƯPPÊƯQHLQKIEHCTONÂVĂBCSDXTLRÂKKRMOÊPATƯBTPVÊVSHBGLDMAƯƯÊOVDOBSCÔNGNGHỆTHÔNGTIN";
-        const paddedGrid = (fixedGridStr + "ABCDEFGHIJKLMNOPQRSTUVWXYZ".repeat(10)).substring(0, 256);
-        
-        let studentName = localStorage.getItem('studentName');
-        let mySubmissionId = localStorage.getItem('mySubmissionId');
-        let mySelectionId = null;
-        let globalMode = 'survey', globalStage = 1, gameActiveWordIdx = -1;
-        let revealedWords = {}, guessedWords = {};
+const WORDS_RAW = ["Y tế","Sức khỏe","Giáo dục","Công nghệ thông tin","Kinh doanh","Du lịch","Nghệ thuật"];
 
-        let selection = [], currentWordText = "";
-        let isSelecting = false;
+let studentName = localStorage.getItem('studentName');
+let mySubId = localStorage.getItem('mySubmissionId');
+let globalMode = 'game', globalStage = 1;
+let revealedWords = {};
 
-        function initGrid() {
-            const container = document.getElementById('wsGrid');
-            container.innerHTML = '';
-            for(let i=0; i<256; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'grid-cell';
-                cell.textContent = paddedGrid[i];
-                cell.dataset.index = i;
-                container.appendChild(cell);
-            }
+// selection state
+let sel = [], selText = '', isSelecting = false;
+let myCircles = {}; // key: circleId, val: {cells, word, status}
 
-            const handleTouch = (e) => {
-                if(globalMode !== 'game') return;
-                const touch = e.touches[0];
-                const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                if(el && el.classList.contains('grid-cell')) {
-                    const idx = parseInt(el.dataset.index);
-                    if(!selection.includes(idx)) {
-                        selection.push(idx);
-                        el.classList.add('selected');
-                        currentWordText += el.textContent;
-                        document.getElementById('selectionPreview').textContent = currentWordText;
-                        document.getElementById('submitWordBtn').disabled = selection.length === 0;
-                        
-                        // Update Firebase with current selection
-                        updateSelectionInFirebase();
-                    }
-                }
-            };
+// ========= GRID INIT =========
+function initGrid() {
+    const container = document.getElementById('wsGrid');
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
 
-            container.addEventListener('touchstart', (e) => {
-                if(globalMode !== 'game') return;
-                isSelecting = true;
-                selection = [];
-                currentWordText = "";
-                document.querySelectorAll('.grid-cell.selected').forEach(c => c.classList.remove('selected'));
-                document.getElementById('selectionPreview').textContent = "";
-                document.getElementById('gameFeedback').textContent = "";
-                document.getElementById('submitWordBtn').disabled = true;
-                handleTouch(e);
-            });
+    // build cells
+    GRID.forEach((ch, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'gc';
+        cell.textContent = ch.toUpperCase();
+        cell.dataset.i = i;
+        container.appendChild(cell);
+    });
 
-            container.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                if(isSelecting) handleTouch(e);
-            }, {passive: false});
+    const resizeCanvas = () => {
+        const r = container.getBoundingClientRect();
+        // subtract border+padding from grid-wrap (4px each side = 8px)
+        const inner = r.width - 8;
+        canvas.width = inner; canvas.height = inner;
+        canvas.style.width = inner + 'px'; canvas.style.height = inner + 'px';
+        redrawAll(ctx, container);
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-            container.addEventListener('touchend', () => {
-                isSelecting = false;
-            });
-        }
+    const cellAt = (x, y) => {
+        const el = document.elementFromPoint(x, y);
+        return (el && el.classList.contains('gc')) ? parseInt(el.dataset.i) : null;
+    };
 
-        async function updateSelectionInFirebase() {
-            if(!mySelectionId) {
-                const newRef = await push(ref(db, 'student_selections'), {});
-                mySelectionId = newRef.key;
-            }
-            await set(ref(db, `student_selections/${mySelectionId}`), {
-                studentName: studentName,
-                cells: selection,
-                word: currentWordText,
-                timestamp: serverTimestamp()
-            });
-        }
+    container.addEventListener('touchstart', e => {
+        if (globalMode !== 'game') return;
+        isSelecting = true;
+        sel = []; selText = '';
+        document.querySelectorAll('.gc.selecting').forEach(c => c.classList.remove('selecting'));
+        document.getElementById('selPreview').textContent = '';
+        document.getElementById('gameFeedback').textContent = '';
+        document.getElementById('sendBtn').disabled = true;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        redrawAll(ctx, container);
+        const t = e.touches[0];
+        const idx = cellAt(t.clientX, t.clientY);
+        if (idx !== null) addCell(idx, ctx, container);
+    });
 
-        window.clearSelection = function() {
-            selection = [];
-            currentWordText = "";
-            document.querySelectorAll('.grid-cell.selected').forEach(c => c.classList.remove('selected'));
-            document.getElementById('selectionPreview').textContent = "";
-            document.getElementById('gameFeedback').textContent = "";
-            document.getElementById('submitWordBtn').disabled = true;
-            
-            // Clear from Firebase
-            if(mySelectionId) {
-                remove(ref(db, `student_selections/${mySelectionId}`));
-            }
-        };
+    container.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (!isSelecting) return;
+        const t = e.touches[0];
+        const idx = cellAt(t.clientX, t.clientY);
+        if (idx !== null && !sel.includes(idx)) addCell(idx, ctx, container);
+    }, {passive: false});
 
-        window.submitWord = async function() {
-            if(selection.length === 0) return;
-            
-            const guessNorm = normalizeString(currentWordText);
-            const guessNormRev = normalizeString(currentWordText.split('').reverse().join(''));
-            
-            let foundIdx = -1;
-            gameWordsNorm.forEach((word, idx) => {
-                const wordNorm = normalizeString(word);
-                if(guessNorm === wordNorm || guessNormRev === wordNorm) {
-                    foundIdx = idx;
-                }
-            });
+    container.addEventListener('touchend', () => { isSelecting = false; });
+}
 
-            if(foundIdx !== -1) {
-                if(!revealedWords[foundIdx] && !guessedWords[foundIdx]) {
-                    await submitGuess(foundIdx, currentWordText);
-                    
-                    // Mark as correct
-                    document.querySelectorAll('.grid-cell.selected').forEach(c => {
-                        c.classList.remove('selected');
-                        c.classList.add('correct');
-                    });
-                    
-                    guessedWords[foundIdx] = true;
-                    document.getElementById('gameFeedback').textContent = "✓ CHÍNH XÁC! Từ của bạn đã được ghi nhận!";
-                    document.getElementById('gameFeedback').style.color = "var(--secondary)";
-                    
-                    setTimeout(() => {
-                        clearSelection();
-                    }, 2000);
-                } else {
-                    document.getElementById('gameFeedback').textContent = "Từ này đã được tìm thấy!";
-                    document.getElementById('gameFeedback').style.color = "#3B82F6";
-                    setTimeout(clearSelection, 1500);
-                }
-            } else {
-                document.getElementById('gameFeedback').textContent = "❌ Chưa đúng, thử lại nhé!";
-                document.getElementById('gameFeedback').style.color = "#EF4444";
-                setTimeout(clearSelection, 1500);
-            }
-            
-            // Clear from Firebase
-            if(mySelectionId) {
-                remove(ref(db, `student_selections/${mySelectionId}`));
-            }
-        };
+function addCell(idx, ctx, container) {
+    sel.push(idx);
+    const cells = container.querySelectorAll('.gc');
+    cells[idx].classList.add('selecting');
+    selText += cells[idx].textContent;
+    document.getElementById('selPreview').textContent = selText;
+    document.getElementById('sendBtn').disabled = false;
+    drawCurrentSel(ctx, container);
+}
 
-        async function submitGuess(wordIdx, guess) {
-            try {
-                await push(ref(db, `game_guesses/${wordIdx}`), {
-                    studentName: studentName,
-                    guess: guess,
-                    timestamp: serverTimestamp()
-                });
-            } catch(e) {
-                console.error('Error submitting guess:', e);
-            }
-        }
+function drawCircle(ctx, container, cellIndices, color, dashed) {
+    if (!cellIndices || cellIndices.length === 0) return;
+    const cells = container.querySelectorAll('.gc');
+    const first = cells[cellIndices[0]], last = cells[cellIndices[cellIndices.length-1]];
+    if (!first || !last) return;
+    const cr = container.getBoundingClientRect();
+    const fr = first.getBoundingClientRect(), lr = last.getBoundingClientRect();
+    const sx = fr.left-cr.left+fr.width/2, sy = fr.top-cr.top+fr.height/2;
+    const ex = lr.left-cr.left+lr.width/2, ey = lr.top-cr.top+lr.height/2;
+    const cx=(sx+ex)/2, cy=(sy+ey)/2;
+    const rw = Math.abs(ex-sx)/2 + fr.width/2 + 5;
+    const rh = Math.abs(ey-sy)/2 + fr.height/2 + 5;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.setLineDash(dashed ? [6,4] : []);
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, Math.max(rw,10), Math.max(rh,10), 0, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
 
-        function normalizeString(str) {
-            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/\s+/g, '');
-        }
+function drawCurrentSel(ctx, container) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    redrawAll(ctx, container);
+    drawCircle(ctx, container, sel, '#6366F1', true);
+}
 
-        window.saveName = function() {
-            const val = document.getElementById('globalName').value.trim();
-            if(!val) return;
-            studentName = val;
-            localStorage.setItem('studentName', studentName);
-            evaluateRouting();
-        };
+function redrawAll(ctx, container) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    Object.values(myCircles).forEach(c => {
+        const color = c.status === 'correct' ? '#10B981' : c.status === 'wrong' ? '#EF4444' : '#94A3B8';
+        drawCircle(ctx, container, c.cells, color, c.status === 'pending');
+    });
+}
 
-        onValue(ref(db, 'app_control'), (snapshot) => {
-            const data = snapshot.val() || {};
-            console.log('Firebase app_control update:', data);
-            globalMode = data.mode || 'game'; // Default to game instead of survey
-            globalStage = data.stage || 1;
-            if(data.game) {
-                gameActiveWordIdx = data.game.activeWordIndex !== undefined ? data.game.activeWordIndex : -1;
-                revealedWords = data.game.revealed || {};
-            }
-            evaluateRouting();
+window.clearSel = function() {
+    sel = []; selText = '';
+    document.querySelectorAll('.gc.selecting').forEach(c => c.classList.remove('selecting'));
+    document.getElementById('selPreview').textContent = '';
+    document.getElementById('sendBtn').disabled = true;
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    redrawAll(ctx, document.getElementById('wsGrid'));
+};
+
+window.sendCircle = async function() {
+    if (sel.length < 2) return;
+    const newRef = await push(ref(db, 'circles'), {
+        studentName,
+        cells: sel,
+        word: selText,
+        status: 'pending',
+        timestamp: serverTimestamp()
+    });
+    myCircles[newRef.key] = { cells: [...sel], word: selText, status: 'pending' };
+    renderPendingList();
+
+    document.getElementById('gameFeedback').textContent = '📤 Đã gửi! Chờ giáo viên xác nhận...';
+    document.getElementById('gameFeedback').style.color = '#6366F1';
+    setTimeout(() => { document.getElementById('gameFeedback').textContent = ''; }, 3000);
+    clearSel();
+};
+
+function renderPendingList() {
+    const container = document.getElementById('pendingList');
+    const entries = Object.entries(myCircles);
+    if (entries.length === 0) { container.innerHTML = ''; return; }
+    container.innerHTML = `<h4>Các từ đã khoanh</h4>` + entries.map(([id, c]) => {
+        const icon = c.status === 'correct' ? '✅' : c.status === 'wrong' ? '❌' : '⏳';
+        return `<div class="pending-item ${c.status}" id="pi_${id}">
+            <span>${c.word}</span>
+            <span class="status-icon">${icon}</span>
+        </div>`;
+    }).join('');
+}
+
+// Listen to my circles status updates
+function listenMyCircles() {
+    onValue(ref(db, 'circles'), snap => {
+        const all = snap.val() || {};
+        // update status for my circles
+        Object.entries(myCircles).forEach(([id]) => {
+            if (all[id]) myCircles[id].status = all[id].status || 'pending';
         });
-
-        function evaluateRouting() {
-            console.log('Routing - Mode:', globalMode, 'Stage:', globalStage, 'HasName:', !!studentName);
-            
-            if(!studentName) {
-                setMode('nameEntryMode');
-                return;
-            }
-            
-            if(globalMode === 'game') {
-                setMode('gameMode');
-                showView('gameMode', 'gameActiveView');
-                console.log('Showing game active view');
-            } else if(globalMode === 'transition') {
-                setMode('transitionMode');
-            } else {
-                setMode('surveyMode');
-                if(globalStage === 1) {
-                    showView('surveyMode', mySubmissionId ? 'waitingView' : 'stage1View');
-                } else if(globalStage === 2) {
-                    fetchAndBuildStage2();
-                }
-            }
+        renderPendingList();
+        // redraw
+        const canvas = document.getElementById('drawCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            redrawAll(ctx, document.getElementById('wsGrid'));
         }
+    });
+}
 
-        function setMode(id) {
-            document.querySelectorAll('.app-mode').forEach(m => m.classList.toggle('active', m.id === id));
-        }
-        
-        function showView(modeId, viewId) {
-            document.getElementById(modeId).querySelectorAll('.view-section').forEach(v => v.classList.toggle('active', v.id === viewId));
-        }
+// ========= ROUTING =========
+function setMode(id) {
+    document.querySelectorAll('.app-mode').forEach(m => m.classList.toggle('active', m.id === id));
+}
+function showView(modeId, viewId) {
+    document.getElementById(modeId).querySelectorAll('.view-section')
+        .forEach(v => v.classList.toggle('active', v.id === viewId));
+}
 
-        window.submitStage1 = async function() {
-            const career = document.getElementById('s1_career').value.trim();
-            const desc = document.getElementById('s1_desc').value.trim();
-            if(!career || !desc) {
-                alert('Vui lòng điền đầy đủ thông tin!');
-                return;
-            }
-            try {
-                const payload = {
-                    studentName,
-                    timestamp: serverTimestamp(),
-                    careers: [{ name: career, description: desc }]
-                };
-                const newRef = await push(ref(db, 'submissions'), payload);
-                mySubmissionId = newRef.key;
-                localStorage.setItem('mySubmissionId', mySubmissionId);
-                evaluateRouting();
-            } catch (e) {
-                alert('Lỗi khi gửi! Vui lòng thử lại.');
-            }
-        };
+window.saveName = function() {
+    const val = document.getElementById('globalName').value.trim();
+    if (!val) return;
+    studentName = val;
+    localStorage.setItem('studentName', studentName);
+    document.getElementById('headerName').textContent = '👤 ' + studentName;
+    route();
+};
 
-        async function fetchAndBuildStage2() {
-            if(!mySubmissionId) {
-                showView('surveyMode', 'stage1View');
-                return;
-            }
-            const snap = await get(ref(db, `submissions/${mySubmissionId}`));
-            if(!snap.exists()) return;
-            
-            const data = snap.val();
-            if(data.careers[0].details) {
-                document.getElementById('stage2View').innerHTML = `<div class="card waiting-msg"><i class="ph-fill ph-check-circle" style="color:var(--secondary)"></i><h2>Hoàn thành!</h2><p>Hãy nhìn lên màn hình chính nhé.</p></div>`;
-            } else {
-                let html = '';
-                data.careers.forEach((c, i) => {
-                    html += `<div class="dynamic-block">
-                        <h3 class="career-title">Nghề: ${c.name}</h3>
-                        <div class="label-with-icon"><i class="ph-bold ph-briefcase"></i> Công việc đặc trưng:</div>
-                        <textarea id="st2_task_${i}" style="width:100%; min-height:70px; padding:12px; border-radius:12px; border:2px solid var(--border); margin-bottom:16px;"></textarea>
-                        <div class="label-with-icon"><i class="ph-bold ph-brain"></i> Yêu cầu năng lực:</div>
-                        <textarea id="st2_cap_${i}" style="width:100%; min-height:70px; padding:12px; border-radius:12px; border:2px solid var(--border); margin-bottom:16px;"></textarea>
-                        <div class="label-with-icon"><i class="ph-bold ph-star"></i> Phẩm chất:</div>
-                        <textarea id="st2_qual_${i}" style="width:100%; min-height:70px; padding:12px; border-radius:12px; border:2px solid var(--border); margin-bottom:16px;"></textarea>
-                    </div>`;
-                });
-                document.getElementById('stage2FormContainer').innerHTML = html;
-            }
-            showView('surveyMode', 'stage2View');
-        }
+onValue(ref(db, 'app_control'), snap => {
+    const d = snap.val() || {};
+    globalMode = d.mode || 'game';
+    globalStage = d.stage || 1;
+    revealedWords = d.game?.revealed || {};
+    route();
+});
 
-        window.submitStage2 = async function() {
-            const updates = {};
-            let hasError = false;
-            const snap = await get(ref(db, `submissions/${mySubmissionId}`));
-            
-            snap.val().careers.forEach((_, i) => {
-                const task = document.getElementById(`st2_task_${i}`).value.trim();
-                const cap = document.getElementById(`st2_cap_${i}`).value.trim();
-                const qual = document.getElementById(`st2_qual_${i}`).value.trim();
-                
-                if(!task || !cap || !qual) hasError = true;
-                
-                updates[`submissions/${mySubmissionId}/careers/${i}/details`] = {
-                    task,
-                    capacity: cap,
-                    quality: qual
-                };
-            });
-            
-            if(hasError) {
-                alert('Vui lòng điền đầy đủ tất cả các ô!');
-                return;
-            }
-            
-            await update(ref(db), updates);
-            fetchAndBuildStage2();
-        };
+function route() {
+    if (!studentName) { setMode('nameEntryMode'); return; }
+    document.getElementById('headerName').textContent = '👤 ' + studentName;
+    if (globalMode === 'game') {
+        setMode('gameMode');
+    } else if (globalMode === 'transition') {
+        setMode('transitionMode');
+    } else {
+        setMode('surveyMode');
+        if (globalStage === 1) showView('surveyMode', mySubId ? 'waitingView' : 'stage1View');
+        else fetchStage2();
+    }
+}
 
-        // Initialize grid and start
-        initGrid();
-        evaluateRouting();
-    </script>
+// ========= SURVEY =========
+window.submitStage1 = async function() {
+    const career = document.getElementById('s1_career').value.trim();
+    const desc = document.getElementById('s1_desc').value.trim();
+    if (!career || !desc) { alert('Vui lòng điền đầy đủ!'); return; }
+    const r = await push(ref(db, 'submissions'), { studentName, timestamp: serverTimestamp(), careers: [{ name: career, description: desc }] });
+    mySubId = r.key;
+    localStorage.setItem('mySubmissionId', mySubId);
+    route();
+};
+
+async function fetchStage2() {
+    if (!mySubId) { showView('surveyMode', 'stage1View'); return; }
+    const snap = await get(ref(db, `submissions/${mySubId}`));
+    if (!snap.exists()) return;
+    const data = snap.val();
+    if (data.careers[0].details) {
+        document.getElementById('stage2View').innerHTML = `<div class="card waiting-msg"><i class="ph-fill ph-check-circle" style="color:var(--secondary)"></i><h2>Hoàn thành!</h2><p style="margin-top:8px;">Nhìn lên màn hình chính nhé.</p></div>`;
+    } else {
+        let html = '';
+        data.careers.forEach((c, i) => {
+            html += `<div class="dynamic-block">
+                <h3 class="career-title">Nghề: ${c.name}</h3>
+                <div class="label-wi"><i class="ph-bold ph-briefcase"></i> Công việc đặc trưng:</div>
+                <textarea id="st2_task_${i}" style="min-height:60px; margin-bottom:12px;"></textarea>
+                <div class="label-wi"><i class="ph-bold ph-brain"></i> Yêu cầu năng lực:</div>
+                <textarea id="st2_cap_${i}" style="min-height:60px; margin-bottom:12px;"></textarea>
+                <div class="label-wi"><i class="ph-bold ph-star"></i> Phẩm chất:</div>
+                <textarea id="st2_qual_${i}" style="min-height:60px; margin-bottom:12px;"></textarea>
+            </div>`;
+        });
+        document.getElementById('stage2FormContainer').innerHTML = html;
+    }
+    showView('surveyMode', 'stage2View');
+}
+
+window.submitStage2 = async function() {
+    const snap = await get(ref(db, `submissions/${mySubId}`));
+    const updates = {};
+    let err = false;
+    snap.val().careers.forEach((_, i) => {
+        const t = document.getElementById(`st2_task_${i}`).value.trim();
+        const c = document.getElementById(`st2_cap_${i}`).value.trim();
+        const q = document.getElementById(`st2_qual_${i}`).value.trim();
+        if (!t || !c || !q) err = true;
+        updates[`submissions/${mySubId}/careers/${i}/details`] = { task: t, capacity: c, quality: q };
+    });
+    if (err) { alert('Vui lòng điền đầy đủ!'); return; }
+    await update(ref(db), updates);
+    fetchStage2();
+};
+
+// ========= START =========
+initGrid();
+listenMyCircles();
+if (studentName) route();
+</script>
 </body>
 </html>
