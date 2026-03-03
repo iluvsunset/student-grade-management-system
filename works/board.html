@@ -194,6 +194,7 @@
         table { width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 23px; }
         th { background: #1E293B; padding: 1.5vw 2vw; text-align: left; font-weight: 700; color: #F8FAFC; text-transform: uppercase; font-size: 1.2vw; letter-spacing: 0.05em; border-bottom: 2px solid var(--surface-border); }
         .group-badge { display: inline-flex; align-items: center; gap: 0.5vw; background: #EEF2FF; color: var(--primary); padding: 0.6vw 1.2vw; border-radius: 1vw; font-weight: 800; font-size: 1.4vw; border: 2px solid #C7D2FE; }
+        .student-name-badge { font-weight: 700; color: var(--text); font-size: 1.3vw; }
         td { padding: 1.5vw 2vw; border-bottom: 1px solid var(--surface-border); vertical-align: top; line-height: 1.6; color: var(--text); font-weight: 500; font-size: 1.3vw; }
         .career-name { font-weight: 800; color: var(--secondary); font-size: 1.4vw; white-space: nowrap; }
         .stage2-col { display: none; }
@@ -261,7 +262,7 @@
             <table id="mainTable">
                 <thead>
                     <tr>
-                        <th width="15%">Nhóm</th>
+                        <th width="25%">Người trình bày</th>
                         <th width="20%">Nhóm nghề</th>
                         <th width="25%">Đặc điểm</th>
                         <th width="15%" class="stage2-col">Công việc đặc trưng</th>
@@ -554,8 +555,7 @@
         function renderRow(data, id, hidden = false) {
             const tbody = document.getElementById('tableBody');
             const tr = document.createElement('tr'); tr.id = `row_${id}`; if(hidden) tr.style.opacity = '0';
-            const groupText = data.group ? `Nhóm ${data.group}` : 'Cá nhân';
-            tr.innerHTML = `<td><div class="group-badge"><i class="ph-bold ph-users"></i><span class="cell-group">${groupText}</span></div></td><td><div class="career-name cell-career">${data.careerName}</div></td><td><div class="cell-desc">${data.desc}</div></td><td class="stage2-col"><div class="cell-task">${data.task || ''}</div></td><td class="stage2-col"><div class="cell-capacity">${data.capacity || ''}</div></td><td class="stage2-col"><div class="cell-quality">${data.quality || ''}</div></td>`;
+            tr.innerHTML = `<td><div class="student-name-badge cell-group">${data.studentName || 'Ẩn danh'}</div></td><td><div class="career-name cell-career">${data.careerName}</div></td><td><div class="cell-desc">${data.desc}</div></td><td class="stage2-col"><div class="cell-task">${data.task || ''}</div></td><td class="stage2-col"><div class="cell-capacity">${data.capacity || ''}</div></td><td class="stage2-col"><div class="cell-quality">${data.quality || ''}</div></td>`;
             tbody.insertBefore(tr, tbody.firstChild); return tr;
         }
 

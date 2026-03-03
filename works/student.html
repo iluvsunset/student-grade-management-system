@@ -36,6 +36,7 @@
             text-align: center;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             position: sticky; top: 0; z-index: 100;
+            position: relative;
         }
 
         .header h1 { font-size: 1.1rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -247,6 +248,9 @@
 <body>
     <div class="header">
         <h1><i class="ph-fill ph-rocket-launch"></i> KHÁM PHÁ NGHỀ NGHIỆP</h1>
+        <button onclick="clearHistory()" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: #FEE2E2; color: #EF4444; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            <i class="ph-bold ph-trash"></i> Xóa lịch sử
+        </button>
     </div>
 
     <div class="container">
@@ -359,6 +363,17 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        // Clear history function - removes all stored data
+        window.clearHistory = function() {
+            if(confirm('Xóa toàn bộ lịch sử hoạt động? Bạn sẽ phải nhập tên lại.')) {
+                localStorage.clear();
+                if(mySelectionId) {
+                    remove(ref(db, `student_selections/${mySelectionId}`));
+                }
+                location.reload();
+            }
+        };
 
         const gameWordsRaw = ["Y tế", "Sức khỏe", "Giáo dục", "Công nghệ thông tin", "Kinh doanh", "Du lịch", "Nghệ thuật"];
         const gameWordsNorm = ["YTẾ", "SỨCKHỎE", "GIÁODỤC", "CÔNGNGHỆTHÔNGTIN", "KINHDOANH", "DULỊCH", "NGHỆTHUẬT"];
@@ -577,13 +592,8 @@
                 return;
             }
             try {
-                const controlSnap = await get(ref(db, 'app_control'));
-                const groupCount = controlSnap.val()?.groups_count || 4;
-                const subsSnap = await get(ref(db, 'submissions'));
-                const currentSubCount = subsSnap.exists() ? Object.keys(subsSnap.val()).length : 0;
                 const payload = {
                     studentName,
-                    group: (currentSubCount % groupCount) + 1,
                     timestamp: serverTimestamp(),
                     careers: [{ name: career, description: desc }]
                 };
