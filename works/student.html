@@ -59,11 +59,13 @@
         input[type="text"], textarea {
             width: 100%; padding: 14px 18px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; margin-bottom: 20px;
         }
-        input[type="text"]:focus { outline: none; border-color: var(--primary); background: #FFFFFF; }
+        input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--primary); background: #FFFFFF; }
 
         .btn-submit {
             width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: transform 0.2s;
         }
+        .btn-submit:active { transform: scale(0.98); }
 
         /* App Modes */
         .app-mode { display: none; width: 100%; }
@@ -75,11 +77,20 @@
         .waiting-msg i { font-size: 3.5rem; color: var(--border); margin-bottom: 12px; display: block; }
 
         /* === WORD SEARCH GRID STYLES === */
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
         .game-grid-container {
             user-select: none;
             touch-action: none;
             background: white;
-            padding: 8px;
+            padding: 4px;
             border-radius: 12px;
             border: 3px solid #FCD34D;
             display: grid;
@@ -87,7 +98,7 @@
             gap: 1px;
             margin: 0 auto;
             width: 100%;
-            max-width: 360px;
+            max-width: 400px;
         }
 
         .grid-cell {
@@ -95,41 +106,99 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 800;
             color: #475569;
             background: #F8FAFC;
             border-radius: 2px;
-            transition: all 0.1s;
+            transition: all 0.15s ease;
+            position: relative;
         }
 
         .grid-cell.selected {
             background: #6366F1;
             color: white;
-            transform: scale(1.1);
+            transform: scale(1.15);
             z-index: 2;
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+        }
+
+        .grid-cell.correct {
+            background: #10B981;
+            color: white;
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
         }
 
         .selection-preview {
-            margin-top: 16px;
-            font-size: 1.2rem;
+            margin: 16px 0;
+            font-size: 1.4rem;
             font-weight: 800;
             color: var(--primary);
-            min-height: 1.5rem;
+            min-height: 2rem;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-align: center;
         }
 
         .game-status-bar {
             width: 100%;
-            padding: 10px;
-            background: #EEF2FF;
+            padding: 12px;
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
             border-radius: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             text-align: center;
             font-weight: 700;
             color: var(--primary);
+            font-size: 0.95rem;
+            border: 2px solid #C7D2FE;
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn-clear {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
             font-size: 0.9rem;
+            font-weight: 600;
+            background: white;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .btn-submit-word {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: var(--secondary);
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-submit-word:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+
+        #gameFeedback {
+            text-align: center;
+            margin-top: 12px;
+            font-weight: 700;
+            min-height: 1.5rem;
+            font-size: 0.95rem;
         }
 
         .grid-lock {
@@ -139,13 +208,14 @@
             content: "ĐÃ XONG!";
             position: absolute;
             inset: 0;
-            background: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.9);
             backdrop-filter: blur(2px);
             z-index: 10;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
+            font-size: 1.2rem;
             color: #10B981;
             border-radius: 12px;
         }
@@ -155,6 +225,22 @@
         .label-with-icon { display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
         .label-with-icon i { color: var(--secondary); }
         .dynamic-block { margin-bottom: 24px; }
+
+        /* Instructions */
+        .game-instructions {
+            background: #FEF3C7;
+            border: 2px solid #FCD34D;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .game-instructions strong {
+            color: #B45309;
+            display: block;
+            margin-bottom: 4px;
+        }
 
     </style>
 </head>
@@ -185,16 +271,33 @@
             </div>
 
             <div id="gameActiveView" class="view-section">
-                <div class="game-status-bar">
-                    <i class="ph-bold ph-lightning"></i> Đang tìm: <span id="targetWordDisplay">...</span>
-                </div>
-                
-                <div class="grid-lock" id="gridLockLayer">
-                    <div class="game-grid-container" id="wsGrid"></div>
-                </div>
+                <div class="game-card">
+                    <div class="game-status-bar">
+                        <i class="ph-bold ph-lightning"></i> Tìm các từ khóa nghề nghiệp
+                    </div>
 
-                <div class="selection-preview" id="selectionPreview"></div>
-                <p id="gameFeedback" style="text-align:center; margin-top:10px; font-weight:700;"></p>
+                    <div class="game-instructions">
+                        <strong>Cách chơi:</strong>
+                        Vuốt ngón tay qua các ô chữ để tạo từ. Vuốt theo hàng ngang hoặc cột dọc. Nhấn "Gửi" khi hoàn tất!
+                    </div>
+                    
+                    <div class="grid-lock" id="gridLockLayer">
+                        <div class="game-grid-container" id="wsGrid"></div>
+                    </div>
+
+                    <div class="selection-preview" id="selectionPreview"></div>
+                    
+                    <div class="game-controls">
+                        <button class="btn-clear" onclick="clearSelection()">
+                            <i class="ph-bold ph-x"></i> Xóa
+                        </button>
+                        <button class="btn-submit-word" id="submitWordBtn" onclick="submitWord()" disabled>
+                            <i class="ph-bold ph-paper-plane-right"></i> Gửi
+                        </button>
+                    </div>
+
+                    <p id="gameFeedback"></p>
+                </div>
             </div>
         </div>
 
@@ -241,7 +344,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-        import { getDatabase, ref, push, update, onValue, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+        import { getDatabase, ref, push, update, onValue, get, serverTimestamp, set, remove } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBOZKWfYWsUqk7hnTqLrpthK6oS_cvAMgQ",
@@ -264,10 +367,12 @@
         
         let studentName = localStorage.getItem('studentName');
         let mySubmissionId = localStorage.getItem('mySubmissionId');
+        let mySelectionId = null;
         let globalMode = 'survey', globalStage = 1, gameActiveWordIdx = -1;
         let revealedWords = {}, guessedWords = {};
 
         let selection = [], currentWordText = "";
+        let isSelecting = false;
 
         function initGrid() {
             const container = document.getElementById('wsGrid');
@@ -291,27 +396,66 @@
                         el.classList.add('selected');
                         currentWordText += el.textContent;
                         document.getElementById('selectionPreview').textContent = currentWordText;
+                        document.getElementById('submitWordBtn').disabled = selection.length === 0;
+                        
+                        // Update Firebase with current selection
+                        updateSelectionInFirebase();
                     }
                 }
             };
 
             container.addEventListener('touchstart', (e) => {
                 if(globalMode !== 'game') return;
-                selection = []; currentWordText = "";
+                isSelecting = true;
+                selection = [];
+                currentWordText = "";
                 document.querySelectorAll('.grid-cell.selected').forEach(c => c.classList.remove('selected'));
+                document.getElementById('selectionPreview').textContent = "";
+                document.getElementById('gameFeedback').textContent = "";
+                document.getElementById('submitWordBtn').disabled = true;
                 handleTouch(e);
             });
+
             container.addEventListener('touchmove', (e) => {
-                e.preventDefault(); // Prevent scrolling while playing
-                handleTouch(e);
+                e.preventDefault();
+                if(isSelecting) handleTouch(e);
             }, {passive: false});
+
             container.addEventListener('touchend', () => {
-                if(globalMode !== 'game') return;
-                checkGuess();
+                isSelecting = false;
             });
         }
 
-        function checkGuess() {
+        async function updateSelectionInFirebase() {
+            if(!mySelectionId) {
+                const newRef = await push(ref(db, 'student_selections'), {});
+                mySelectionId = newRef.key;
+            }
+            await set(ref(db, `student_selections/${mySelectionId}`), {
+                studentName: studentName,
+                cells: selection,
+                word: currentWordText,
+                timestamp: serverTimestamp()
+            });
+        }
+
+        window.clearSelection = function() {
+            selection = [];
+            currentWordText = "";
+            document.querySelectorAll('.grid-cell.selected').forEach(c => c.classList.remove('selected'));
+            document.getElementById('selectionPreview').textContent = "";
+            document.getElementById('gameFeedback').textContent = "";
+            document.getElementById('submitWordBtn').disabled = true;
+            
+            // Clear from Firebase
+            if(mySelectionId) {
+                remove(ref(db, `student_selections/${mySelectionId}`));
+            }
+        };
+
+        window.submitWord = async function() {
+            if(selection.length === 0) return;
+            
             const guessNorm = normalizeString(currentWordText);
             const guessNormRev = normalizeString(currentWordText.split('').reverse().join(''));
             
@@ -325,24 +469,37 @@
 
             if(foundIdx !== -1) {
                 if(!revealedWords[foundIdx] && !guessedWords[foundIdx]) {
-                    submitGuess(foundIdx, currentWordText);
+                    await submitGuess(foundIdx, currentWordText);
+                    
+                    // Mark as correct
+                    document.querySelectorAll('.grid-cell.selected').forEach(c => {
+                        c.classList.remove('selected');
+                        c.classList.add('correct');
+                    });
+                    
+                    guessedWords[foundIdx] = true;
+                    document.getElementById('gameFeedback').textContent = "✓ CHÍNH XÁC! Từ của bạn đã được ghi nhận!";
+                    document.getElementById('gameFeedback').style.color = "var(--secondary)";
+                    
+                    setTimeout(() => {
+                        clearSelection();
+                    }, 2000);
                 } else {
                     document.getElementById('gameFeedback').textContent = "Từ này đã được tìm thấy!";
                     document.getElementById('gameFeedback').style.color = "#3B82F6";
-                    setTimeout(resetSelection, 1000);
+                    setTimeout(clearSelection, 1500);
                 }
             } else {
-                document.getElementById('gameFeedback').textContent = "Thử lại nhé!";
+                document.getElementById('gameFeedback').textContent = "❌ Chưa đúng, thử lại nhé!";
                 document.getElementById('gameFeedback').style.color = "#EF4444";
-                setTimeout(resetSelection, 800);
+                setTimeout(clearSelection, 1500);
             }
-        }
-
-        function resetSelection() {
-            document.querySelectorAll('.grid-cell.selected').forEach(c => c.classList.remove('selected'));
-            document.getElementById('selectionPreview').textContent = "";
-            document.getElementById('gameFeedback').textContent = "";
-        }
+            
+            // Clear from Firebase
+            if(mySelectionId) {
+                remove(ref(db, `student_selections/${mySelectionId}`));
+            }
+        };
 
         async function submitGuess(wordIdx, guess) {
             try {
@@ -351,17 +508,9 @@
                     guess: guess,
                     timestamp: serverTimestamp()
                 });
-                guessedWords[wordIdx] = true;
-                document.getElementById('gameFeedback').textContent = "CHÍNH XÁC!";
-                document.getElementById('gameFeedback').style.color = "var(--secondary)";
-                // Update grid visual
-                document.querySelectorAll('.grid-cell.selected').forEach(c => {
-                    c.classList.remove('selected');
-                    c.style.background = '#10B981';
-                    c.style.color = 'white';
-                });
-                setTimeout(resetSelection, 1000);
-            } catch(e) { alert('Lỗi!'); }
+            } catch(e) {
+                console.error('Error submitting guess:', e);
+            }
         }
 
         function normalizeString(str) {
@@ -371,7 +520,8 @@
         window.saveName = function() {
             const val = document.getElementById('globalName').value.trim();
             if(!val) return;
-            studentName = val; localStorage.setItem('studentName', studentName);
+            studentName = val;
+            localStorage.setItem('studentName', studentName);
             evaluateRouting();
         };
 
@@ -387,54 +537,84 @@
         });
 
         function evaluateRouting() {
-            if(!studentName) { setMode('nameEntryMode'); return; }
+            if(!studentName) {
+                setMode('nameEntryMode');
+                return;
+            }
+            
             if(globalMode === 'game') {
                 setMode('gameMode');
                 showView('gameMode', 'gameActiveView');
-                if(gameActiveWordIdx >= 0) {
-                    document.getElementById('targetWordDisplay').textContent = gameWordsRaw[gameActiveWordIdx];
-                } else {
-                    document.getElementById('targetWordDisplay').textContent = "Mọi từ khóa";
-                }
-                // Check if grid should be locked or updated
-                // We'll keep it interactive so students can find ANY word.
             } else if(globalMode === 'transition') {
                 setMode('transitionMode');
             } else {
                 setMode('surveyMode');
-                if(globalStage === 1) showView('surveyMode', mySubmissionId ? 'waitingView' : 'stage1View');
-                else if(globalStage === 2) fetchAndBuildStage2();
+                if(globalStage === 1) {
+                    showView('surveyMode', mySubmissionId ? 'waitingView' : 'stage1View');
+                } else if(globalStage === 2) {
+                    fetchAndBuildStage2();
+                }
             }
         }
 
-        function setMode(id) { document.querySelectorAll('.app-mode').forEach(m => m.classList.toggle('active', m.id === id)); }
-        function showView(modeId, viewId) { document.getElementById(modeId).querySelectorAll('.view-section').forEach(v => v.classList.toggle('active', v.id === viewId)); }
+        function setMode(id) {
+            document.querySelectorAll('.app-mode').forEach(m => m.classList.toggle('active', m.id === id));
+        }
+        
+        function showView(modeId, viewId) {
+            document.getElementById(modeId).querySelectorAll('.view-section').forEach(v => v.classList.toggle('active', v.id === viewId));
+        }
 
         window.submitStage1 = async function() {
             const career = document.getElementById('s1_career').value.trim();
             const desc = document.getElementById('s1_desc').value.trim();
-            if(!career || !desc) return;
+            if(!career || !desc) {
+                alert('Vui lòng điền đầy đủ thông tin!');
+                return;
+            }
             try {
-                const controlSnap = await get(ref(db, 'app_control')), groupCount = controlSnap.val()?.groups_count || 4;
-                const subsSnap = await get(ref(db, 'submissions')), currentSubCount = subsSnap.exists() ? Object.keys(subsSnap.val()).length : 0;
-                const payload = { studentName, group: (currentSubCount % groupCount) + 1, timestamp: serverTimestamp(), careers: [{ name: career, description: desc }] };
+                const controlSnap = await get(ref(db, 'app_control'));
+                const groupCount = controlSnap.val()?.groups_count || 4;
+                const subsSnap = await get(ref(db, 'submissions'));
+                const currentSubCount = subsSnap.exists() ? Object.keys(subsSnap.val()).length : 0;
+                const payload = {
+                    studentName,
+                    group: (currentSubCount % groupCount) + 1,
+                    timestamp: serverTimestamp(),
+                    careers: [{ name: career, description: desc }]
+                };
                 const newRef = await push(ref(db, 'submissions'), payload);
-                mySubmissionId = newRef.key; localStorage.setItem('mySubmissionId', mySubmissionId);
+                mySubmissionId = newRef.key;
+                localStorage.setItem('mySubmissionId', mySubmissionId);
                 evaluateRouting();
-            } catch (e) { alert('Lỗi!'); }
+            } catch (e) {
+                alert('Lỗi khi gửi! Vui lòng thử lại.');
+            }
         };
 
         async function fetchAndBuildStage2() {
-            if(!mySubmissionId) { showView('surveyMode', 'stage1View'); return; }
+            if(!mySubmissionId) {
+                showView('surveyMode', 'stage1View');
+                return;
+            }
             const snap = await get(ref(db, `submissions/${mySubmissionId}`));
             if(!snap.exists()) return;
+            
             const data = snap.val();
             if(data.careers[0].details) {
                 document.getElementById('stage2View').innerHTML = `<div class="card waiting-msg"><i class="ph-fill ph-check-circle" style="color:var(--secondary)"></i><h2>Hoàn thành!</h2><p>Hãy nhìn lên màn hình chính nhé.</p></div>`;
             } else {
                 let html = '';
                 data.careers.forEach((c, i) => {
-                    html += `<div class="dynamic-block"><h3 class="career-title">Nghề: ${c.name}</h3><div class="label-with-icon"><i class="ph-bold ph-briefcase"></i> Công việc đặc trưng:</div><textarea id="st2_task_${i}"></textarea><div class="label-with-icon"><i class="ph-bold ph-brain"></i> Yêu cầu năng lực:</div><textarea id="st2_cap_${i}"></textarea><div class="label-with-icon"><i class="ph-bold ph-star"></i> Phẩm chất:</div><textarea id="st2_qual_${i}"></textarea></div>`;
+                    html += `<div class="dynamic-block">
+                        <h3 class="career-title">Nghề: ${c.name}</h3>
+                        <div class="label-with-icon"><i class="ph-bold ph-briefcase"></i> Công việc đặc trưng:</div>
+                        <textarea id="st2_task_${i}" style="width:100%; min-height:70px; padding:12px; border-radius:12px; border:2px solid var(--border); margin-bottom:16px;"></textarea>
+                        <div class="label-with-icon"><i class="ph-bold ph-brain"></i> Yêu cầu năng lực:</div>
+                        <textarea id="st2_cap_${i}" style="width:100%; min-height:70px; padding:12px; border-radius:12px; border:2px solid var(--border); margin-bottom:16px;"></textarea>
+                        <div class="label-with-icon"><i class="ph-bold ph-star"></i> Phẩm chất:</div>
+                        <textarea id="st2_qual_${i}" style="width:100%; min-height:70px; padding:12px; border-radius:12px; border:2px solid var(--border); margin-bottom:16px;"></textarea>
+                    </div>`;
                 });
                 document.getElementById('stage2FormContainer').innerHTML = html;
             }
@@ -442,18 +622,36 @@
         }
 
         window.submitStage2 = async function() {
-            const updates = {}; let hasError = false;
+            const updates = {};
+            let hasError = false;
             const snap = await get(ref(db, `submissions/${mySubmissionId}`));
+            
             snap.val().careers.forEach((_, i) => {
-                const task = document.getElementById(`st2_task_${i}`).value.trim(), cap = document.getElementById(`st2_cap_${i}`).value.trim(), qual = document.getElementById(`st2_qual_${i}`).value.trim();
+                const task = document.getElementById(`st2_task_${i}`).value.trim();
+                const cap = document.getElementById(`st2_cap_${i}`).value.trim();
+                const qual = document.getElementById(`st2_qual_${i}`).value.trim();
+                
                 if(!task || !cap || !qual) hasError = true;
-                updates[`submissions/${mySubmissionId}/careers/${i}/details`] = { task, capacity: cap, quality: qual };
+                
+                updates[`submissions/${mySubmissionId}/careers/${i}/details`] = {
+                    task,
+                    capacity: cap,
+                    quality: qual
+                };
             });
-            if(hasError) { alert('Vui lòng điền đủ!'); return; }
-            await update(ref(db), updates); fetchAndBuildStage2();
+            
+            if(hasError) {
+                alert('Vui lòng điền đầy đủ tất cả các ô!');
+                return;
+            }
+            
+            await update(ref(db), updates);
+            fetchAndBuildStage2();
         };
 
-        initGrid(); evaluateRouting();
+        // Initialize grid and start
+        initGrid();
+        evaluateRouting();
     </script>
 </body>
 </html>

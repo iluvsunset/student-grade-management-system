@@ -108,6 +108,12 @@
             transition: all 0.3s ease;
         }
 
+        /* Student selection indicators */
+        .grid-cell.student-selecting {
+            background: rgba(99, 102, 241, 0.3);
+            transform: scale(1.1);
+        }
+
         #highlightsContainer {
             position: absolute;
             top: 1vw; left: 1vw; right: 1vw; bottom: 1vw;
@@ -126,6 +132,16 @@
         }
         
         .highlight-pill.show { opacity: 1; transform: scale(1); }
+
+        /* Student selection path */
+        .student-selection-path {
+            position: absolute;
+            background: rgba(99, 102, 241, 0.4);
+            border: 0.2vw solid #6366F1;
+            border-radius: 999px;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
 
         .word-list-panel {
             background: white;
@@ -353,6 +369,7 @@
         const gridData = grid16.map(row => row.split(''));
 
         let activeWordIndex = -1, revealedWords = new Set();
+        let activeStudentSelections = {};
 
         function renderWordSearchGrid() {
             const gridEl = document.getElementById('wsGrid');
@@ -362,6 +379,8 @@
                     const cell = document.createElement('div');
                     cell.className = 'grid-cell';
                     cell.textContent = gridData[r][c];
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
                     gridEl.appendChild(cell);
                 }
             }
@@ -416,9 +435,30 @@
             if(activeWordIndex === -1) document.getElementById('winnerAnnouncement').classList.remove('show');
         });
 
+        // Listen for student selections
+        onValue(ref(db, 'student_selections'), (snapshot) => {
+            if(currentMode !== 'game') return;
+            
+            // Clear old selections
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('student-selecting');
+            });
+            
+            const selections = snapshot.val() || {};
+            Object.values(selections).forEach(sel => {
+                if(sel.cells && Array.isArray(sel.cells)) {
+                    sel.cells.forEach(cellIdx => {
+                        const cells = document.querySelectorAll('.grid-cell');
+                        if(cells[cellIdx]) {
+                            cells[cellIdx].classList.add('student-selecting');
+                        }
+                    });
+                }
+            });
+        });
+
         onValue(ref(db, 'game_guesses'), (snapshot) => {
             if(currentMode !== 'game') return;
-            // Check all words for new winners autonomously
             snapshot.forEach(wordSnap => {
                 const wordIdx = parseInt(wordSnap.key);
                 if(revealedWords.has(wordIdx)) return;
